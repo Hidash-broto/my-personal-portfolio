@@ -29,7 +29,7 @@ export default function BioWidget() {
 
                 {/* Tagline */}
                 <div className="flex flex-wrap gap-2">
-                    {["Full-Stack Developer", "Problem Solver", "Freelancer"].map((tag) => (
+                    {["Full-Stack Developer", "Problem Solver", "System Design", "Boyond Coder", "Freelancer"].map((tag) => (
                         <span
                             key={tag}
                             className="px-2.5 py-1 text-xs font-medium rounded-full 
@@ -42,8 +42,8 @@ export default function BioWidget() {
 
                 {/* Bio */}
                 <p className="text-sm text-white/70 leading-relaxed">
-                    I build scalable web applications that users love. Passionate about clean code,
-                    great UX, and turning complex problems into elegant solutions.
+                    I craft intelligent, AI-powered applications that push boundaries. Specializing in
+                    LLM integration, agentic workflows, and building next-gen solutions with cutting-edge tech.
                 </p>
 
                 {/* Stats */}
