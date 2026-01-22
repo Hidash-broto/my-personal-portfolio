@@ -536,7 +536,7 @@ const contact = {
     a job opportunity, or just want to say hi,
     I'd love to hear from you!
   \`,
-  
+  34
   channels: {
     email: {
       address: "hidash920@gmail.com",

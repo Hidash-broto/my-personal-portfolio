@@ -6,7 +6,7 @@ import { Code2, Sparkles } from "lucide-react";
 export default function BioWidget() {
     return (
         <motion.div
-            className="fixed right-6 top-1/2 transform -translate-y-1/2 w-80 "
+            className="fixed right-6 top-1/2 transform -translate-y-1/2 w-100 z-30"
             initial={{ x: 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.3 }}
@@ -42,25 +42,8 @@ export default function BioWidget() {
 
                 {/* Bio */}
                 <p className="text-sm text-white/70 leading-relaxed">
-                    I craft intelligent, AI-powered applications that push boundaries. Specializing in
-                    LLM integration, agentic workflows, and building next-gen solutions with cutting-edge tech.
+                    I am a Value-Focused Full-Stack Developer who thrives at the intersection of high-speed AI orchestration and production-grade engineering. In an era where "vibe coding" is common, I champion Validated Coding—leveraging frontier models like Claude and tools like Cursor to accelerate development while maintaining the architectural rigor required for scale.
                 </p>
-
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-3 pt-2">
-                    {[
-                        { label: "Years Exp", value: "5+" },
-                        { label: "Projects", value: "50+" },
-                        { label: "Clients", value: "30+" },
-                    ].map((stat) => (
-                        <div key={stat.label} className="text-center">
-                            <div className="text-lg font-bold text-white">{stat.value}</div>
-                            <div className="text-[10px] text-white/50 uppercase tracking-wide">
-                                {stat.label}
-                            </div>
-                        </div>
-                    ))}
-                </div>
             </div>
         </motion.div>
     );

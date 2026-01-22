@@ -1,144 +1,192 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Briefcase, FolderGit2, User, Rocket, Mail, Code2, Sparkles, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Briefcase, FolderGit2, User, Rocket, Mail, FileText, Wifi, Battery, Signal } from "lucide-react";
+import PDFViewer from "./PDFViewer";
+import MobileCodeViewer from "./MobileCodeViewer";
 
-interface AppCardProps {
-    title: string;
+interface AppIconProps {
+    id: string;
+    label: string;
     icon: typeof Briefcase;
     color: string;
-    description: string;
+    onClick: () => void;
     delay: number;
 }
 
-function AppCard({ title, icon: Icon, color, description, delay }: AppCardProps) {
+function AppIcon({ label, icon: Icon, color, onClick, delay }: AppIconProps) {
     return (
-        <motion.div
-            className="glass rounded-2xl p-4 space-y-3"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay, type: "spring", stiffness: 100 }}
+        <motion.button
+            className="flex flex-col items-center gap-1.5"
+            onClick={onClick}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay, type: "spring", stiffness: 300, damping: 20 }}
+            whileTap={{ scale: 0.85 }}
         >
-            <div className="flex items-center gap-3">
-                <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{
-                        background: `linear-gradient(135deg, ${color}dd, ${color}99)`,
-                    }}
-                >
-                    <Icon className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                    <h3 className="text-sm font-semibold text-white">{title}</h3>
-                </div>
+            {/* App icon */}
+            <div
+                className="w-14 h-14 rounded-[14px] flex items-center justify-center shadow-lg"
+                style={{
+                    background: `linear-gradient(145deg, ${color}ee, ${color}bb)`,
+                    boxShadow: `0 4px 12px ${color}40`,
+                }}
+            >
+                <Icon className="w-7 h-7 text-white" />
             </div>
-            <p className="text-xs text-white/60 leading-relaxed">{description}</p>
-            <button className="flex items-center gap-1 text-xs text-accent hover:text-blue-400 transition-colors">
-                <span>View Details</span>
-                <ExternalLink className="w-3 h-3" />
-            </button>
-        </motion.div>
+            {/* App label */}
+            <span className="text-[11px] text-white/90 font-medium text-center leading-tight max-w-16 truncate">
+                {label}
+            </span>
+        </motion.button>
+    );
+}
+
+function DockIcon({ icon: Icon, color, onClick }: { icon: typeof Briefcase; color: string; onClick: () => void }) {
+    return (
+        <motion.button
+            onClick={onClick}
+            whileTap={{ scale: 0.85 }}
+            className="w-14 h-14 rounded-[14px] flex items-center justify-center"
+            style={{
+                background: `linear-gradient(145deg, ${color}ee, ${color}bb)`,
+                boxShadow: `0 2px 8px ${color}30`,
+            }}
+        >
+            <Icon className="w-7 h-7 text-white" />
+        </motion.button>
+    );
+}
+
+function StatusBar() {
+    const now = new Date();
+    const time = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+
+    return (
+        <div className="flex items-center justify-between px-6 pt-3 pb-2">
+            <span className="text-sm font-semibold text-white">{time}</span>
+            <div className="flex items-center gap-1">
+                <Signal className="w-4 h-4 text-white" />
+                <Wifi className="w-4 h-4 text-white" />
+                <Battery className="w-5 h-5 text-white" />
+            </div>
+        </div>
     );
 }
 
 export default function MobileView() {
+    const [activeApp, setActiveApp] = useState<string | null>(null);
+    const [showPDF, setShowPDF] = useState(false);
+
     const apps = [
-        {
-            title: "Experience",
-            icon: Briefcase,
-            color: "#3b82f6",
-            description: "5+ years of professional experience building web applications.",
-        },
-        {
-            title: "Projects",
-            icon: FolderGit2,
-            color: "#8b5cf6",
-            description: "50+ projects delivered across e-commerce, SaaS, and more.",
-        },
-        {
-            title: "About Me",
-            icon: User,
-            color: "#06b6d4",
-            description: "Full-stack developer passionate about clean code and UX.",
-        },
-        {
-            title: "Why Hire Me",
-            icon: Rocket,
-            color: "#f59e0b",
-            description: "I ship fast, communicate well, and care about quality.",
-        },
-        {
-            title: "Contact",
-            icon: Mail,
-            color: "#10b981",
-            description: "Let's connect! Open to full-time, contract, and freelance.",
-        },
+        { id: "experience", label: "Experience", icon: Briefcase, color: "#3b82f6" },
+        { id: "projects", label: "Projects", icon: FolderGit2, color: "#8b5cf6" },
+        { id: "about", label: "About Me", icon: User, color: "#06b6d4" },
+        { id: "whyHireMe", label: "Why Hire Me", icon: Rocket, color: "#f59e0b" },
+        { id: "contact", label: "Contact", icon: Mail, color: "#10b981" },
+        { id: "resume", label: "Resume", icon: FileText, color: "#ef4444" },
     ];
 
+    const dockApps = [
+        { id: "experience", icon: Briefcase, color: "#3b82f6" },
+        { id: "projects", icon: FolderGit2, color: "#8b5cf6" },
+        { id: "contact", icon: Mail, color: "#10b981" },
+        { id: "resume", icon: FileText, color: "#ef4444" },
+    ];
+
+    const handleAppClick = (appId: string) => {
+        if (appId === "resume") {
+            setShowPDF(true);
+        } else {
+            setActiveApp(appId);
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4 py-8 pb-24">
-            {/* Header */}
-            <motion.div
-                className="text-center mb-8"
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 100 }}
-            >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl 
-                        bg-gradient-to-br from-blue-500 to-purple-600 mb-4 shadow-lg">
-                    <Code2 className="w-8 h-8 text-white" />
+        <div
+            className="min-h-screen w-full flex flex-col"
+            style={{
+                background: "linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%)",
+            }}
+        >
+            {/* iOS Status Bar */}
+            <StatusBar />
+
+            {/* Main content area with app grid */}
+            <div className="flex-1 px-6 pt-8 pb-4 overflow-auto">
+                {/* App Grid - 4 columns */}
+                <div className="grid grid-cols-4 gap-x-4 gap-y-6 max-w-sm mx-auto">
+                    {apps.map((app, index) => (
+                        <AppIcon
+                            key={app.id}
+                            {...app}
+                            onClick={() => handleAppClick(app.id)}
+                            delay={0.1 + index * 0.05}
+                        />
+                    ))}
                 </div>
-                <h1 className="text-2xl font-bold text-white mb-2">Developer Portfolio</h1>
-                <div className="flex items-center justify-center gap-2 text-sm text-white/60">
-                    <Sparkles className="w-4 h-4 text-yellow-400" />
-                    <span>Available for hire</span>
-                </div>
-            </motion.div>
 
-            {/* Tagline Pills */}
-            <motion.div
-                className="flex flex-wrap justify-center gap-2 mb-8"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-            >
-                {["Full-Stack Developer", "Problem Solver", "Freelancer"].map((tag) => (
-                    <span
-                        key={tag}
-                        className="px-3 py-1 text-xs font-medium rounded-full 
-                       bg-white/10 text-white/80 border border-white/10"
-                    >
-                        {tag}
-                    </span>
-                ))}
-            </motion.div>
-
-            {/* Bio */}
-            <motion.p
-                className="text-center text-sm text-white/70 mb-8 max-w-sm mx-auto"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-            >
-                I build scalable web applications that users love. Tap on any section below to learn more.
-            </motion.p>
-
-            {/* App Cards Grid */}
-            <div className="space-y-3 max-w-md mx-auto">
-                {apps.map((app, index) => (
-                    <AppCard key={app.title} {...app} delay={0.4 + index * 0.1} />
-                ))}
+                {/* Page dots */}
+                <motion.div
+                    className="flex justify-center gap-2 mt-8"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                >
+                    <div className="w-2 h-2 rounded-full bg-white" />
+                    <div className="w-2 h-2 rounded-full bg-white/30" />
+                    <div className="w-2 h-2 rounded-full bg-white/30" />
+                </motion.div>
             </div>
 
-            {/* Bottom indicator */}
+            {/* iOS Dock */}
             <motion.div
-                className="fixed bottom-6 left-1/2 transform -translate-x-1/2"
+                className="mx-4 mb-6 px-4 py-3 rounded-[22px] bg-white/10 backdrop-blur-xl border border-white/10"
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.4 }}
+            >
+                <div className="flex justify-around items-center">
+                    {dockApps.map((app) => (
+                        <DockIcon
+                            key={app.id}
+                            icon={app.icon}
+                            color={app.color}
+                            onClick={() => handleAppClick(app.id)}
+                        />
+                    ))}
+                </div>
+            </motion.div>
+
+            {/* Home indicator */}
+            <motion.div
+                className="flex justify-center pb-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
+                transition={{ delay: 0.6 }}
             >
-                <div className="w-32 h-1 rounded-full bg-white/20" />
+                <div className="w-32 h-1 rounded-full bg-white/30" />
             </motion.div>
+
+            {/* PDF Viewer */}
+            <PDFViewer
+                isOpen={showPDF}
+                onClose={() => setShowPDF(false)}
+                pdfUrl="/Muhammed Hidash Resume.pdf"
+                title="Muhammed Hidash Resume"
+            />
+
+            {/* Mobile Code Viewer */}
+            <AnimatePresence>
+                {activeApp && (
+                    <MobileCodeViewer
+                        isOpen={true}
+                        onClose={() => setActiveApp(null)}
+                        categoryId={activeApp}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 }

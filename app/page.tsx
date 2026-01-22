@@ -8,6 +8,7 @@ import Dock from "@/components/Dock";
 import BioWidget from "@/components/BioWidget";
 import VSCodeWindow from "@/components/VSCodeWindow";
 import MobileView from "@/components/MobileView";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
@@ -34,38 +35,46 @@ export default function Home() {
   }
 
   if (isMobile) {
-    return <MobileView />;
+    return (
+      <>
+        <LoadingScreen />
+        <MobileView />
+      </>
+    );
   }
 
   return (
-    <WindowManagerProvider>
-      <Desktop>
-        <TopMenuBar />
-        <BioWidget />
-        <Dock />
+    <>
+      <LoadingScreen />
+      <WindowManagerProvider>
+        <Desktop>
+          <TopMenuBar />
+          <BioWidget />
+          <Dock />
 
-        {/* VS Code Windows */}
-        <VSCodeWindow
-          windowId="experience"
-          defaultPosition={{ x: 80, y: 60 }}
-        />
-        <VSCodeWindow
-          windowId="projects"
-          defaultPosition={{ x: 140, y: 100 }}
-        />
-        <VSCodeWindow
-          windowId="about"
-          defaultPosition={{ x: 200, y: 80 }}
-        />
-        <VSCodeWindow
-          windowId="whyHireMe"
-          defaultPosition={{ x: 120, y: 120 }}
-        />
-        <VSCodeWindow
-          windowId="contact"
-          defaultPosition={{ x: 160, y: 90 }}
-        />
-      </Desktop>
-    </WindowManagerProvider>
+          {/* VS Code Windows */}
+          <VSCodeWindow
+            windowId="experience"
+            defaultPosition={{ x: 80, y: 60 }}
+          />
+          <VSCodeWindow
+            windowId="projects"
+            defaultPosition={{ x: 140, y: 100 }}
+          />
+          <VSCodeWindow
+            windowId="about"
+            defaultPosition={{ x: 200, y: 80 }}
+          />
+          <VSCodeWindow
+            windowId="whyHireMe"
+            defaultPosition={{ x: 120, y: 120 }}
+          />
+          <VSCodeWindow
+            windowId="contact"
+            defaultPosition={{ x: 160, y: 90 }}
+          />
+        </Desktop>
+      </WindowManagerProvider>
+    </>
   );
 }
