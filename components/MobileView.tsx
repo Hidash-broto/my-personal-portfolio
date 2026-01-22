@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, FolderGit2, User, Rocket, Mail, FileText, Wifi, Battery, Signal } from "lucide-react";
+import { Briefcase, FolderGit2, User, Rocket, Mail, FileText } from "lucide-react";
 import PDFViewer from "./PDFViewer";
 import MobileCodeViewer from "./MobileCodeViewer";
 
@@ -27,7 +27,7 @@ function AppIcon({ label, icon: Icon, color, onClick, delay }: AppIconProps) {
         >
             {/* App icon */}
             <div
-                className="w-14 h-14 rounded-[14px] flex items-center justify-center shadow-lg"
+                className="w-[60px] h-[60px] rounded-[14px] flex items-center justify-center shadow-lg"
                 style={{
                     background: `linear-gradient(145deg, ${color}ee, ${color}bb)`,
                     boxShadow: `0 4px 12px ${color}40`,
@@ -36,7 +36,7 @@ function AppIcon({ label, icon: Icon, color, onClick, delay }: AppIconProps) {
                 <Icon className="w-7 h-7 text-white" />
             </div>
             {/* App label */}
-            <span className="text-[11px] text-white/90 font-medium text-center leading-tight max-w-16 truncate">
+            <span className="text-[11px] text-white/90 font-medium text-center leading-tight w-[70px] truncate">
                 {label}
             </span>
         </motion.button>
@@ -48,42 +48,41 @@ function DockIcon({ icon: Icon, color, onClick }: { icon: typeof Briefcase; colo
         <motion.button
             onClick={onClick}
             whileTap={{ scale: 0.85 }}
-            className="w-14 h-14 rounded-[14px] flex items-center justify-center"
+            className="w-[52px] h-[52px] rounded-[12px] flex items-center justify-center"
             style={{
                 background: `linear-gradient(145deg, ${color}ee, ${color}bb)`,
                 boxShadow: `0 2px 8px ${color}30`,
             }}
         >
-            <Icon className="w-7 h-7 text-white" />
+            <Icon className="w-6 h-6 text-white" />
         </motion.button>
-    );
-}
-
-function StatusBar() {
-    const now = new Date();
-    const time = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
-
-    return (
-        <div className="flex items-center justify-between px-6 pt-3 pb-2">
-            <span className="text-sm font-semibold text-white">{time}</span>
-            <div className="flex items-center gap-1">
-                <Signal className="w-4 h-4 text-white" />
-                <Wifi className="w-4 h-4 text-white" />
-                <Battery className="w-5 h-5 text-white" />
-            </div>
-        </div>
     );
 }
 
 export default function MobileView() {
     const [activeApp, setActiveApp] = useState<string | null>(null);
     const [showPDF, setShowPDF] = useState(false);
+    const [viewportHeight, setViewportHeight] = useState("100vh");
+
+    // Fix for mobile viewport height (accounts for browser chrome)
+    useEffect(() => {
+        const updateHeight = () => {
+            setViewportHeight(`${window.innerHeight}px`);
+        };
+        updateHeight();
+        window.addEventListener("resize", updateHeight);
+        window.addEventListener("orientationchange", updateHeight);
+        return () => {
+            window.removeEventListener("resize", updateHeight);
+            window.removeEventListener("orientationchange", updateHeight);
+        };
+    }, []);
 
     const apps = [
         { id: "experience", label: "Experience", icon: Briefcase, color: "#3b82f6" },
         { id: "projects", label: "Projects", icon: FolderGit2, color: "#8b5cf6" },
         { id: "about", label: "About Me", icon: User, color: "#06b6d4" },
-        { id: "whyHireMe", label: "Why Hire Me", icon: Rocket, color: "#f59e0b" },
+        { id: "whyHireMe", label: "Why Hire", icon: Rocket, color: "#f59e0b" },
         { id: "contact", label: "Contact", icon: Mail, color: "#10b981" },
         { id: "resume", label: "Resume", icon: FileText, color: "#ef4444" },
     ];
@@ -105,18 +104,16 @@ export default function MobileView() {
 
     return (
         <div
-            className="min-h-screen w-full flex flex-col"
+            className="w-full flex flex-col overflow-hidden"
             style={{
+                height: viewportHeight,
                 background: "linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%)",
             }}
         >
-            {/* iOS Status Bar */}
-            <StatusBar />
-
             {/* Main content area with app grid */}
-            <div className="flex-1 px-6 pt-8 pb-4 overflow-auto">
+            <div className="flex-1 px-5 pt-6 overflow-auto flex flex-col">
                 {/* App Grid - 4 columns */}
-                <div className="grid grid-cols-4 gap-x-4 gap-y-6 max-w-sm mx-auto">
+                <div className="grid grid-cols-4 gap-x-2 gap-y-5 justify-items-center">
                     {apps.map((app, index) => (
                         <AppIcon
                             key={app.id}
@@ -126,23 +123,11 @@ export default function MobileView() {
                         />
                     ))}
                 </div>
-
-                {/* Page dots */}
-                <motion.div
-                    className="flex justify-center gap-2 mt-8"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                >
-                    <div className="w-2 h-2 rounded-full bg-white" />
-                    <div className="w-2 h-2 rounded-full bg-white/30" />
-                    <div className="w-2 h-2 rounded-full bg-white/30" />
-                </motion.div>
             </div>
 
             {/* iOS Dock */}
             <motion.div
-                className="mx-4 mb-6 px-4 py-3 rounded-[22px] bg-white/10 backdrop-blur-xl border border-white/10"
+                className="mx-3 mb-2 px-4 py-2.5 rounded-[20px] bg-white/10 backdrop-blur-xl border border-white/10 flex-shrink-0"
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.4 }}
@@ -161,7 +146,7 @@ export default function MobileView() {
 
             {/* Home indicator */}
             <motion.div
-                className="flex justify-center pb-2"
+                className="flex justify-center pb-2 flex-shrink-0"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
