@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, FolderGit2, User, Rocket, Mail, FileText } from "lucide-react";
+import { Briefcase, FolderGit2, User, Rocket, Mail, FileText, Images, MessageCircle } from "lucide-react";
 import PDFViewer from "./PDFViewer";
 import MobileCodeViewer from "./MobileCodeViewer";
+import MobilePhotosViewer from "./MobilePhotosViewer";
 
 interface AppIconProps {
     id: string;
@@ -14,6 +15,31 @@ interface AppIconProps {
     onClick: () => void;
     delay: number;
 }
+
+// List of images in the Me folder (same as Desktop.tsx)
+const meImages = [
+    "/Me/42c7f18f-d873-4929-8331-0b76cfd35fb7.jpg",
+    "/Me/7191e0e7-c863-4746-a298-bb37772acc6c.JPG",
+    "/Me/FullSizeRender.jpg",
+    "/Me/IMG_0005.jpg",
+    "/Me/IMG_0175.jpg",
+    "/Me/IMG_0223.jpg",
+    "/Me/IMG_0730.JPG",
+    "/Me/IMG_1562.jpg",
+    "/Me/IMG_1593.JPG",
+    "/Me/IMG_2462.JPG",
+    "/Me/IMG_4668.JPG",
+    "/Me/IMG_5509.JPG",
+    "/Me/IMG_5587.jpg",
+    "/Me/IMG_6319.jpg",
+    "/Me/IMG_6517.jpg",
+    "/Me/WhatsApp Image 2025-05-12 at 11.55.41 AM.jpeg",
+    "/Me/WhatsApp Image 2025-08-18 at 21.24.42_bf63958c.jpg",
+    "/Me/WhatsApp Image 2025-11-09 at 22.52.19_dace5aa4.jpg",
+    "/Me/fun.jpg",
+    "/Me/generation-3583539f-eb35-433b-9c7f-91d343cc1c86.png",
+    "/Me/generation-8e1f5072-9cdf-4da5-beb1-462d5c1f166c.png",
+];
 
 function AppIcon({ label, icon: Icon, color, onClick, delay }: AppIconProps) {
     return (
@@ -36,7 +62,7 @@ function AppIcon({ label, icon: Icon, color, onClick, delay }: AppIconProps) {
                 <Icon className="w-7 h-7 text-white" />
             </div>
             {/* App label */}
-            <span className="text-[11px] text-white/90 font-medium text-center leading-tight w-[70px] truncate">
+            <span className="text-[11px] text-white/90 font-medium text-center leading-tight w-[70px] truncate drop-shadow-sm">
                 {label}
             </span>
         </motion.button>
@@ -62,6 +88,7 @@ function DockIcon({ icon: Icon, color, onClick }: { icon: typeof Briefcase; colo
 export default function MobileView() {
     const [activeApp, setActiveApp] = useState<string | null>(null);
     const [showPDF, setShowPDF] = useState(false);
+    const [showPhotos, setShowPhotos] = useState(false);
     const [viewportHeight, setViewportHeight] = useState("100vh");
 
     // Fix for mobile viewport height (accounts for browser chrome)
@@ -85,18 +112,24 @@ export default function MobileView() {
         { id: "whyHireMe", label: "Why Hire", icon: Rocket, color: "#f59e0b" },
         { id: "contact", label: "Contact", icon: Mail, color: "#10b981" },
         { id: "resume", label: "Resume", icon: FileText, color: "#ef4444" },
+        { id: "photos", label: "Me", icon: Images, color: "#ec4899" },
+        { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, color: "#25D366" },
     ];
 
     const dockApps = [
         { id: "experience", icon: Briefcase, color: "#3b82f6" },
         { id: "projects", icon: FolderGit2, color: "#8b5cf6" },
-        { id: "contact", icon: Mail, color: "#10b981" },
+        { id: "whatsapp", icon: MessageCircle, color: "#25D366" },
         { id: "resume", icon: FileText, color: "#ef4444" },
     ];
 
     const handleAppClick = (appId: string) => {
         if (appId === "resume") {
             setShowPDF(true);
+        } else if (appId === "photos") {
+            setShowPhotos(true);
+        } else if (appId === "whatsapp") {
+            window.open("https://wa.me/917736574157", "_blank");
         } else {
             setActiveApp(appId);
         }
@@ -104,14 +137,22 @@ export default function MobileView() {
 
     return (
         <div
-            className="w-full flex flex-col overflow-hidden"
+            className="w-full flex flex-col overflow-hidden relative"
             style={{
                 height: viewportHeight,
-                background: "linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%)",
             }}
         >
+            {/* Background Image - Same as desktop */}
+            <div
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: "url('/my-photo.png')" }}
+            />
+
+            {/* Dark overlay for better text readability */}
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+
             {/* Main content area with app grid */}
-            <div className="flex-1 px-5 pt-6 overflow-auto flex flex-col">
+            <div className="relative flex-1 px-5 pt-6 overflow-auto flex flex-col z-10">
                 {/* App Grid - 4 columns */}
                 <div className="grid grid-cols-4 gap-x-2 gap-y-5 justify-items-center">
                     {apps.map((app, index) => (
@@ -123,11 +164,25 @@ export default function MobileView() {
                         />
                     ))}
                 </div>
+
+                {/* Page dots - pushed to center of remaining space */}
+                <div className="flex-1 flex items-center justify-center">
+                    <motion.div
+                        className="flex gap-2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                    >
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                        <div className="w-2 h-2 rounded-full bg-white/30" />
+                        <div className="w-2 h-2 rounded-full bg-white/30" />
+                    </motion.div>
+                </div>
             </div>
 
             {/* iOS Dock */}
             <motion.div
-                className="mx-3 mb-2 px-4 py-2.5 rounded-[20px] bg-white/10 backdrop-blur-xl border border-white/10 flex-shrink-0"
+                className="relative z-10 mx-3 mb-2 px-4 py-2.5 rounded-[20px] bg-white/15 backdrop-blur-xl border border-white/20 flex-shrink-0"
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.4 }}
@@ -146,12 +201,12 @@ export default function MobileView() {
 
             {/* Home indicator */}
             <motion.div
-                className="flex justify-center pb-2 flex-shrink-0"
+                className="relative z-10 flex justify-center pb-2 flex-shrink-0"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
             >
-                <div className="w-32 h-1 rounded-full bg-white/30" />
+                <div className="w-32 h-1 rounded-full bg-white/40" />
             </motion.div>
 
             {/* PDF Viewer */}
@@ -160,6 +215,14 @@ export default function MobileView() {
                 onClose={() => setShowPDF(false)}
                 pdfUrl="/Muhammed Hidash Resume.pdf"
                 title="Muhammed Hidash Resume"
+            />
+
+            {/* Photos Viewer */}
+            <MobilePhotosViewer
+                isOpen={showPhotos}
+                onClose={() => setShowPhotos(false)}
+                images={meImages}
+                folderName="Me"
             />
 
             {/* Mobile Code Viewer */}
