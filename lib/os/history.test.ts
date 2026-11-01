@@ -45,6 +45,16 @@ describe("createOsHistory (desktop)", () => {
         expect(h.entries()).toEqual(["/"]);
     });
 
+    it("changing the item inside the focused app replaces (sidebar arrow keys)", () => {
+        const h = fakeHistory();
+        const os = createOsHistory("desktop", h.port);
+        os.landing();
+        os.open("builds");
+        os.open("builds", "agentview");
+        os.open("builds", "software-factory");
+        expect(h.entries()).toEqual(["/", "/?w=builds&focus=builds&item=software-factory"]);
+    });
+
     it("focus replaces the current entry", () => {
         const h = fakeHistory();
         const os = createOsHistory("desktop", h.port);

@@ -14,6 +14,8 @@ export interface AppViewProps {
     openItem: (item: string | null) => void;
     /** Close this app. */
     close: () => void;
+    /** Open another app (optionally at an item) without leaving the OS. */
+    openApp: (app: WindowAppId, item?: string | null) => void;
 }
 
 /** Lazy view per window app. Keys are checked against the registry by the compiler. */

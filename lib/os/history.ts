@@ -33,8 +33,11 @@ export function createOsHistory(shell: ShellKind, port: HistoryPort = browserHis
     function go(next: OsUrlState) {
         const url = serializeOsUrl(next, shell);
         if (url === port.current()) return;
-        // The phone shows one app at a time: switching apps replaces, so back always lands on home.
-        if (shell === "phone" && state().open.length > 0) {
+        const current = state();
+        const sameSet = current.open.length === next.open.length && current.open.every((a) => next.open.includes(a));
+        // Selecting an item inside an already-open, focused app (sidebar arrows) replaces, so history doesn't fill up.
+        // The phone shows one app at a time: switching apps replaces too, so back always lands on home.
+        if ((sameSet && current.focus === next.focus) || (shell === "phone" && current.open.length > 0)) {
             port.replace(url);
             stack[stack.length - 1] = url;
             return;
