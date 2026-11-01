@@ -26,11 +26,11 @@ export function bootScript() {
         if (window.location.pathname === "/") {
             for (const theme of ["dark", "light"]) {
                 const link = document.createElement("link");
-                link.rel = "preload";
-                link.as = "image";
-                link.type = "image/avif";
-                link.href = `/wallpaper/${theme}-${root.dataset.shell}.avif`;
-                link.media = `(prefers-color-scheme: ${theme})`;
+                link.setAttribute("rel", "preload");
+                link.setAttribute("as", "image");
+                link.setAttribute("type", "image/avif");
+                link.setAttribute("href", `/wallpaper/${theme}-${root.dataset.shell}.avif`);
+                link.setAttribute("media", `(prefers-color-scheme: ${theme})`);
                 link.setAttribute("fetchpriority", "high");
                 document.head.appendChild(link);
             }
