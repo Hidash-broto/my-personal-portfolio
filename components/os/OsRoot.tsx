@@ -9,6 +9,11 @@ const DesktopShell = dynamic(() => import("@/shells/desktop/DesktopShell"), { ss
 const PhoneShell = dynamic(() => import("@/shells/phone/PhoneShell"), { ssr: false });
 
 const never = () => () => {};
+const onWallpaper = (cb: () => void) => {
+    window.addEventListener("hos:wallpaper-ready", cb);
+    return () => window.removeEventListener("hos:wallpaper-ready", cb);
+};
+const readWallpaper = () => document.documentElement.dataset.wallpaperReady === "1";
 const readBoot = () => document.documentElement.dataset.boot === "on";
 const readFirstVisit = () => document.documentElement.dataset.firstVisit === "1";
 
@@ -16,6 +21,7 @@ const readFirstVisit = () => document.documentElement.dataset.firstVisit === "1"
 export default function OsRoot() {
     const shell = useSyncExternalStore(never, readShell, () => null);
     const bootOn = useSyncExternalStore(never, readBoot, () => false);
+    const wallpaperReady = useSyncExternalStore(onWallpaper, readWallpaper, () => false);
     const [bootDone, setBootDone] = useState(false);
 
     useEffect(() => {
@@ -35,7 +41,7 @@ export default function OsRoot() {
     return (
         <OsProvider shell={shell}>
             {shell === "phone" ? <PhoneShell /> : <DesktopShell />}
-            {bootOn && !bootDone && <BootScreen ready onDone={finishBoot} />}
+            {bootOn && !bootDone && <BootScreen ready={wallpaperReady} onDone={finishBoot} />}
         </OsProvider>
     );
 }

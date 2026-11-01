@@ -33,6 +33,16 @@ describe("BOOT_SCRIPT", () => {
         expect(run({ coarse: true, w: 390, h: 844, url: "/?app=builds" })).toMatchObject({ boot: "off", firstVisit: "1" });
     });
 
+    it("preloads only the chosen shell's wallpaper, gated by color scheme", () => {
+        document.head.querySelectorAll('link[rel="preload"]').forEach((l) => l.remove());
+        run({ coarse: true, w: 390, h: 844 });
+        const links = [...document.head.querySelectorAll<HTMLLinkElement>('link[rel="preload"][as="image"]')];
+        expect(links.map((l) => [l.getAttribute("href"), l.media])).toEqual([
+            ["/wallpaper/dark-phone.avif", "(prefers-color-scheme: dark)"],
+            ["/wallpaper/light-phone.avif", "(prefers-color-scheme: light)"],
+        ]);
+    });
+
     it("non-home paths never boot", () => {
         expect(run({ coarse: true, w: 390, h: 844, url: "/bug-hunt" })).toMatchObject({ boot: "off" });
     });
