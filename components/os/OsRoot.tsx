@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import BootScreen from "@/features/boot/BootScreen";
+import OsAnalytics from "./OsAnalytics";
 import { markSeen, os, OsProvider, readShell } from "@/lib/os";
 
 const DesktopShell = dynamic(() => import("@/shells/desktop/DesktopShell"), { ssr: false });
@@ -40,6 +41,7 @@ export default function OsRoot() {
 
     return (
         <OsProvider shell={shell}>
+            <OsAnalytics />
             {shell === "phone" ? <PhoneShell /> : <DesktopShell />}
             {bootOn && !bootDone && <BootScreen ready={wallpaperReady} onDone={finishBoot} />}
         </OsProvider>

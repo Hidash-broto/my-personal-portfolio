@@ -13,6 +13,8 @@ export interface OsEvents {
     "game:catch": { bug: BugId };
     "game:end": { score: number; activeMs: number };
     "share:click": { channel: ShareChannel };
+    /** The share actually happened: navigator.share resolved or the link was copied. */
+    "share:complete": { channel: ShareChannel };
 }
 
 /** Sticky facts a late subscriber reads on mount, so it never misses an event that already fired. */

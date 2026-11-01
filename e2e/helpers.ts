@@ -11,6 +11,16 @@ export function where(page: Page) {
     return url.pathname + url.search;
 }
 
+/** Records every analytics event ("hos:track") in window.__events, from the first script on. */
+export async function recordAnalytics(page: Page) {
+    await page.addInitScript(() => {
+        const w = window as unknown as { __events: { event: string; properties: Record<string, unknown> }[] };
+        w.__events = [];
+        window.addEventListener("hos:track", (e) => w.__events.push((e as CustomEvent).detail));
+    });
+    return () => page.evaluate(() => (window as unknown as { __events: { event: string; properties: Record<string, unknown> }[] }).__events);
+}
+
 export function collectErrors(page: Page) {
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));

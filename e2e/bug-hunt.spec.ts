@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { asReturningVisitor, collectErrors } from "./helpers";
+import { asReturningVisitor, collectErrors, recordAnalytics } from "./helpers";
 
 test("a round starts from a shared challenge link and Esc ends it into the recap", async ({ page, context, baseURL }) => {
     const errors = collectErrors(page);
@@ -22,7 +22,9 @@ test.describe("share API and page", () => {
         expect(ok.status()).toBe(200);
         const { token } = await ok.json();
 
+        const events = await recordAnalytics(page);
         await page.goto(`/bug-hunt/s/${token}`);
+        await expect.poll(async () => (await events()).map((e) => e.event)).toContain("share_page_view");
         await expect(page.getByRole("article")).toContainText(/4\s*bugs caught in 60 seconds/);
         await expect(page.getByRole("link", { name: /Beat 4/ })).toBeVisible();
 

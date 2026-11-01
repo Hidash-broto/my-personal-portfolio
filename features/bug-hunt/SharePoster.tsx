@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Beetle from "./Beetle";
+import ShareBeacon from "./ShareBeacon";
 import { challengeHref, type ShareCard } from "./server";
 import styles from "./share-page.module.css";
 
@@ -8,6 +9,7 @@ export default function SharePoster({ card }: { card: ShareCard }) {
     const lessons = card.valid ? card.bugs : card.bugs.slice(0, 3);
     return (
         <main className={styles.page}>
+            <ShareBeacon valid={card.valid} score={card.valid ? card.score : null} />
             <article className={styles.poster}>
                 <div className={styles.brand}>
                     <span className={styles.mono} aria-hidden="true">H</span>
@@ -49,7 +51,7 @@ export default function SharePoster({ card }: { card: ShareCard }) {
                     </section>
                 )}
 
-                <Link className={styles.cta} href={card.valid ? challengeHref(card.score) : "/?app=bughunt&item=play"} prefetch={false}>
+                <Link className={styles.cta} href={card.valid ? challengeHref(card.score) : "/?app=bughunt&item=play"} prefetch={false} data-share-cta>
                     {card.valid ? `Beat ${card.score} — Play Bug Hunt` : "Play Bug Hunt"}
                 </Link>
             </article>

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { asReturningVisitor, collectErrors, where } from "./helpers";
+import { asReturningVisitor, collectErrors, recordAnalytics, where } from "./helpers";
 
 test("first visit boots once, then never again", async ({ page }) => {
     const errors = collectErrors(page);
@@ -10,6 +10,14 @@ test("first visit boots once, then never again", async ({ page }) => {
     await page.reload();
     await expect(page.getByRole("status", { name: "Hidash OS is starting" })).toHaveCount(0);
     expect(errors).toEqual([]);
+});
+
+test("analytics: a shared link lands as a referred first visit", async ({ page }) => {
+    const events = await recordAnalytics(page);
+    await page.goto("/?app=builds&utm_source=linkedin&utm_medium=share&utm_campaign=bughunt");
+    await expect.poll(async () => (await events()).map((e) => e.event)).toEqual(expect.arrayContaining(["boot_complete", "app_open"]));
+    const boot = (await events()).find((e) => e.event === "boot_complete")!;
+    expect(boot.properties).toMatchObject({ first_visit: true, referred: true, utm_source: "linkedin", $process_person_profile: false });
 });
 
 test("a deep link skips the boot and the first back stays on the site", async ({ page }) => {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BookOpen, Compass, IdCard, Layers, MessageCircle, Route } from "lucide-react";
 import { useRef, useSyncExternalStore, type ReactNode } from "react";
 import { readShell, useSpawnSurface, type ShellKind, type SpawnKind } from "@/lib/os";
+import OsAnalytics from "@/components/os/OsAnalytics";
 import BugHuntGame from "./BugHuntGame";
 import styles from "./arena.module.css";
 
@@ -110,6 +111,7 @@ export default function StandaloneArena() {
 
     return (
         <main className={styles.arena}>
+            <OsAnalytics />
             <Wallpaper />
             <header className={styles.menubar}>
                 <span className={styles.monogram} aria-hidden="true">H</span>

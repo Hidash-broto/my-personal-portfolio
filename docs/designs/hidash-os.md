@@ -815,23 +815,23 @@ Critical gaps (no test, no handling and silent): **0** after the accepted fixes.
 - **Conflict flags:** `lib/os` is owned by contract 0, so lanes change it only through a small PR. `apps/registry.ts` is edited by Apps only.
 
 ## Implementation Tasks
-- [ ] **T1 (P1, human: ~2d / CC: ~2h)** — lib/os — Build the URL helpers, geometry store, non-reactive spawn registry and sticky bus behind `lib/os/index.ts`.
+- [x] **T1 (P1, human: ~2d / CC: ~2h)** — lib/os — Build the URL helpers, geometry store, non-reactive spawn registry and sticky bus behind `lib/os/index.ts`.
   - Surfaced by: Architecture — split ownership; outside voice #1, #6.
   - Files: lib/os/*.
   - Verify: Vitest unit tests for close semantics and lifecycle.
-- [ ] **T2 (P1, human: ~1d / CC: ~1h)** — data — Migrate Journey, Builds, About and Beliefs to typed content and delete `portfolioContent.ts`.
+- [x] **T2 (P1, human: ~1d / CC: ~1h)** — data — Migrate Journey, Builds, About and Beliefs to typed content and delete `portfolioContent.ts`.
   - Surfaced by: Architecture; outside voice #3.
   - Files: data/*.
   - Verify: typecheck; SSR summary renders.
-- [ ] **T3 (P1, human: ~0.5d / CC: ~20min)** — apps — Make `apps/registry.ts` the only app list.
+- [x] **T3 (P1, human: ~0.5d / CC: ~20min)** — apps — Make `apps/registry.ts` the only app list.
   - Surfaced by: Architecture — hand-synced lists.
   - Files: apps/registry.ts.
   - Verify: dock, grid and Search derive from it (unit test).
-- [ ] **T4 (P1, human: ~1d / CC: ~1h)** — test — Add the Vitest + Playwright harness and the SEO regression E2E.
+- [x] **T4 (P1, human: ~1d / CC: ~1h)** — test — Add the Vitest + Playwright harness and the SEO regression E2E.
   - Surfaced by: Tests.
   - Files: vitest.config.ts, playwright.config.ts, e2e/.
   - Verify: `npm test`, `npx playwright test`.
-- [ ] **T5 (P1, human: ~3d / CC: ~3h)** — bug-hunt — Ship Milestone 1 `/bug-hunt` standalone with the start/result API, token, share page and Open Graph card.
+- [x] **T5 (P1, human: ~3d / CC: ~3h)** — bug-hunt — Ship Milestone 1 `/bug-hunt` standalone with the start/result API, token, share page and Open Graph card.
   - Surfaced by: outside voice #2.
   - Files: features/bug-hunt, app/api/bug-hunt, app/bug-hunt.
   - Verify: E2E growth loop.
@@ -839,15 +839,15 @@ Critical gaps (no test, no handling and silent): **0** after the accepted fixes.
   - Surfaced by: Performance.
   - Files: features/character, public/rive.
   - Verify: E2E with WASM blocked.
-- [ ] **T7 (P2, human: ~0.5d / CC: ~20min)** — perf — Add the photo pipeline (sharp → AVIF/WebP) and the two budgets in CI.
+- [x] **T7 (P2, human: ~0.5d / CC: ~20min)** — perf — Add the photo pipeline (sharp → AVIF/WebP) and the two budgets in CI.
   - Surfaced by: Performance; outside voice #7.
   - Files: scripts/images.mjs, e2e/budget.spec.ts.
   - Verify: CI budget job.
-- [ ] **T8 (P2, human: ~2h / CC: ~10min)** — analytics — Add the `share_complete` and `first_visit` events and the referred-visit metric.
+- [x] **T8 (P2, human: ~2h / CC: ~10min)** — analytics — Add the `share_complete` and `first_visit` events and the referred-visit metric.
   - Surfaced by: outside voice #8.
   - Files: lib/analytics.
   - Verify: events fire in E2E.
-- [ ] **T9 (P2, human: ~2h / CC: ~10min)** — cleanup — Remove the old shell files and the `@monaco-editor/react` and `react-rnd` deps.
+- [x] **T9 (P2, human: ~2h / CC: ~10min)** — cleanup — Remove the old shell files and the `@monaco-editor/react` and `react-rnd` deps.
   - Surfaced by: Code quality.
   - Files: components/*, package.json.
   - Verify: build + lint clean.

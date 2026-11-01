@@ -64,6 +64,7 @@ function ShareControls({ share, score, onRetry }: { share: ShareState; score: nu
         os.emit("share:click", { channel: "native" });
         try {
             await navigator.share({ title: "Bug Hunt — Hidash OS", text, url: urlFor("native-share") });
+            os.emit("share:complete", { channel: "native" });
         } catch (error) {
             if ((error as { name?: string } | null)?.name !== "AbortError") setNativeFailed(true);
         }
@@ -71,7 +72,9 @@ function ShareControls({ share, score, onRetry }: { share: ShareState; score: nu
 
     const copy = async () => {
         os.emit("share:click", { channel: "copy" });
-        setCopied(await copyText(urlFor("copy-link")));
+        const ok = await copyText(urlFor("copy-link"));
+        setCopied(ok);
+        if (ok) os.emit("share:complete", { channel: "copy" });
     };
 
     return (
