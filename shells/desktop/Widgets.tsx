@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useSyncExternalStore } from "react";
+import { useLayoutEffect, useRef, useSyncExternalStore } from "react";
 import { PROFILE } from "@/data/profile";
 import { posts } from "@/data/posts";
+import { syncFauxGlass } from "@/features/wallpaper/faux-glass";
 import { os, useSpawnSurface } from "@/lib/os";
 import type { DesktopActions } from "./use-desktop-actions";
 
@@ -30,6 +31,22 @@ function readBest(): string | null {
     }
 }
 
+/**
+ * The widget's faux glass: the pre-blurred wallpaper under the glass tint, on its own layer so the
+ * widget keeps its shadow (faux glass clips with clip-path). Offset mode, so a pressed (scaled)
+ * widget never shifts the image.
+ */
+function GlassLayer() {
+    const ref = useRef<HTMLSpanElement>(null);
+    useLayoutEffect(() => {
+        const sync = () => ref.current && syncFauxGlass(ref.current);
+        sync();
+        window.addEventListener("resize", sync);
+        return () => window.removeEventListener("resize", sync);
+    }, []);
+    return <span ref={ref} className="hos-faux-glass hos-glass-layer" aria-hidden="true" />;
+}
+
 function initials(name: string) {
     return name
         .split(/\s+/)
@@ -54,7 +71,8 @@ function ProfileWidget({ actions }: { actions: DesktopActions }) {
     const ref = useRef<HTMLButtonElement>(null);
     useSpawnSurface("widget-profile", "widget", ref);
     return (
-        <button ref={ref} type="button" className="hos-widget hos-faux-glass hos-widget-profile" aria-label={`About ${PROFILE.name}`} onClick={() => actions.launch("about")}>
+        <button ref={ref} type="button" className="hos-widget hos-widget-profile" aria-label={`About ${PROFILE.name}`} onClick={() => actions.launch("about")}>
+            <GlassLayer />
             <span className="hos-avatar" aria-hidden="true">
                 {initials(PROFILE.name)}
             </span>
@@ -71,7 +89,8 @@ function LatestNoteWidget({ actions }: { actions: DesktopActions }) {
     const ref = useRef<HTMLButtonElement>(null);
     useSpawnSurface("widget-note", "widget", ref);
     return (
-        <button ref={ref} type="button" className="hos-widget hos-faux-glass hos-widget-note" onClick={() => actions.launch("notes", LATEST.slug)}>
+        <button ref={ref} type="button" className="hos-widget hos-widget-note" onClick={() => actions.launch("notes", LATEST.slug)}>
+            <GlassLayer />
             <span className="hos-widget-meta">Latest note</span>
             <span className="hos-widget-title">{LATEST.title}</span>
             <span className="hos-widget-link" aria-hidden="true">
@@ -86,11 +105,12 @@ function BugHuntWidget({ actions }: { actions: DesktopActions }) {
     const best = useSyncExternalStore(subscribeBest, readBest, () => null);
     useSpawnSurface("widget-bughunt", "widget", ref);
     return (
-        <section ref={ref} className="hos-widget hos-faux-glass hos-widget-bughunt" aria-label="Bug Hunt">
+        <section ref={ref} className="hos-widget hos-widget-bughunt" aria-label="Bug Hunt">
+            <GlassLayer />
             <div className="hos-widget-stack">
                 <span className="hos-widget-meta">Bug Hunt · your best</span>
-                <span className="hos-score" aria-label={best ? `Best score ${best}` : "No score yet"}>
-                    {best ?? "–"}
+                <span className="hos-score" data-empty={best ? undefined : ""} aria-label={best ? `Best score ${best}` : "No score yet"}>
+                    {best ?? "0"}
                 </span>
             </div>
             <button type="button" className="hos-play" onClick={() => actions.launch("bughunt", "play")}>

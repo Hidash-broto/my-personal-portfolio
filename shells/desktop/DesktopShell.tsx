@@ -31,7 +31,9 @@ export default function DesktopShell() {
         if (readGlassPref()) applyGlassPref(true);
         const root = document.documentElement.style;
         root.setProperty("--hos-menubar-height", `${MENU_BAR_H}px`);
-        return () => root.removeProperty("--hos-menubar-height");
+        return () => {
+            root.removeProperty("--hos-menubar-height");
+        };
     }, []);
 
     // Global keys: only ⌘K / Ctrl+K (Search) and Esc (close the open surface).

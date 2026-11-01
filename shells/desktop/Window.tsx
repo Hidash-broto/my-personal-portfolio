@@ -13,6 +13,7 @@ import {
 import { useCallback, useLayoutEffect, useRef, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import { getApp, type WindowAppId } from "@/apps/registry";
 import { APP_VIEWS } from "@/apps/views";
+import { syncFauxGlass } from "@/features/wallpaper/faux-glass";
 import { useOsStore, useSpawnSurface } from "@/lib/os";
 import { dockAnchorRect } from "./dock-anchors";
 import { EDGE_CURSOR, EDGES, clampPosition, fitRect, resizeRect, restoreUnderPointer, zoomRect, type Edge, type Rect } from "./geometry";
@@ -71,6 +72,7 @@ export function DesktopWindow({ id, active, item, actions }: DesktopWindowProps)
     const reduce = useReducedMotion() ?? false;
     const [isPresent, safeToRemove] = usePresence();
     const surfaceRef = useRef<HTMLElement>(null);
+    const glassRef = useRef<HTMLDivElement>(null);
     const gesture = useRef<Gesture | null>(null);
     const suppressFlip = useRef(false);
     const lastRect = useRef<Rect | null>(null);
@@ -171,9 +173,11 @@ export function DesktopWindow({ id, active, item, actions }: DesktopWindowProps)
         void play({ x: 0, y: 0, scaleX: 1, scaleY: 1 }, ZOOM);
     }, [zoomed, id, reduce, play, setPose]);
 
-    // Remember the frame we drew, for the next zoom FLIP. Declared after the zoom effect on purpose.
+    // Remember the frame we drew, for the next zoom FLIP (declared after the zoom effect on purpose),
+    // and keep the faux-glass wallpaper aligned while the window moves (offset mode: windows are transformed).
     useLayoutEffect(() => {
         lastRect.current = currentRect(id);
+        if (glassRef.current) syncFauxGlass(glassRef.current);
     });
 
     if (!g) return null;
@@ -277,9 +281,10 @@ export function DesktopWindow({ id, active, item, actions }: DesktopWindowProps)
                 role="dialog"
                 aria-label={app.name}
                 tabIndex={-1}
-                className={`hos-window-surface ${live ? "hos-live-glass" : "hos-faux-glass"}`}
+                className={`hos-window-surface ${live ? "hos-live-glass" : "hos-faux-surface"}`}
                 style={{ x, y, scaleX, scaleY, opacity }}
             >
+                {!live && <div ref={glassRef} className="hos-faux-glass hos-glass-layer" aria-hidden="true" />}
                 <header
                     className="hos-titlebar"
                     onPointerDown={onTitlePointerDown}
@@ -306,6 +311,7 @@ export function DesktopWindow({ id, active, item, actions }: DesktopWindowProps)
                             shell="desktop"
                             item={item}
                             openItem={(next) => actions.openItem(id, next)}
+                            openApp={(app, next) => actions.launch(app, next ?? null)}
                             close={() => actions.close(id)}
                         />
                     </WindowErrorBoundary>

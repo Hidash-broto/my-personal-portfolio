@@ -12,9 +12,6 @@
   --hos-menubar-hl: rgba(255, 255, 255, 0.22);
   --hos-menu-glass: rgba(30, 34, 48, 0.72);
   --hos-tooltip-bg: rgba(32, 36, 50, 0.94);
-  --hos-faux: color-mix(in srgb, var(--hos-glass-solid) 93%, transparent);
-  --hos-widget-bg: color-mix(in srgb, var(--hos-glass-solid) 66%, transparent);
-  --hos-widget-bg-hover: color-mix(in srgb, var(--hos-glass-solid) 74%, transparent);
   --hos-widget-edge: rgba(255, 255, 255, 0.12);
   --hos-window-edge: rgba(0, 0, 0, 0.6);
   --hos-window-edge-inactive: rgba(0, 0, 0, 0.4);
@@ -78,9 +75,6 @@
 :root[data-glass="solid"] .hos-desktop {
   --hos-menu-glass: var(--hos-glass-solid);
   --hos-dock-glass: var(--hos-glass-solid);
-  --hos-faux: var(--hos-glass-solid);
-  --hos-widget-bg: var(--hos-glass-solid);
-  --hos-widget-bg-hover: var(--hos-glass-solid);
   --hos-tooltip-bg: var(--hos-glass-solid);
 }
 
@@ -88,9 +82,6 @@
   .hos-desktop {
     --hos-menu-glass: var(--hos-glass-solid);
     --hos-dock-glass: var(--hos-glass-solid);
-    --hos-faux: var(--hos-glass-solid);
-    --hos-widget-bg: var(--hos-glass-solid);
-    --hos-widget-bg-hover: var(--hos-glass-solid);
   }
 }
 
@@ -114,6 +105,18 @@
 .hos-live-glass {
   -webkit-backdrop-filter: var(--hos-blur);
   backdrop-filter: var(--hos-blur);
+}
+
+/*
+ * Faux glass lives on its own layer: features/wallpaper/faux-glass.css clips with clip-path, which
+ * would also clip the surface's shadow. The surface isolates, so z-index -1 sits above its own
+ * (transparent) background and below its content.
+ */
+.hos-desktop .hos-glass-layer {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* ---------- Menu bar ---------- */
@@ -464,9 +467,11 @@
   width: 100%;
   padding: 16px;
   display: flex;
+  position: relative;
+  isolation: isolate;
   border-radius: var(--hos-radius-widget);
   border: 1px solid var(--hos-widget-edge);
-  background: var(--hos-widget-bg);
+  background: transparent;
   box-shadow:
     inset 0 1px 0 var(--hos-highlight),
     0 10px 30px rgba(0, 0, 0, 0.16);
@@ -474,13 +479,16 @@
   font: inherit;
   text-align: left;
   cursor: default;
-  transition:
-    transform 0.18s cubic-bezier(0.3, 0.7, 0.4, 1),
-    background-color 0.18s ease;
+  transition: transform 0.18s cubic-bezier(0.3, 0.7, 0.4, 1);
 }
 
-button.hos-widget:hover {
-  background: var(--hos-widget-bg-hover);
+.hos-widget > .hos-glass-layer {
+  --hos-faux-radius: calc(var(--hos-radius-widget) - 1px);
+  transition: opacity 0.18s ease;
+}
+
+button.hos-widget:hover > .hos-glass-layer {
+  opacity: 0.86;
 }
 
 button.hos-widget:active {
@@ -555,6 +563,10 @@ button.hos-widget:active {
   justify-content: space-between;
 }
 
+.hos-score[data-empty] {
+  color: var(--hos-text-secondary);
+}
+
 .hos-score {
   font-family: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
   font-size: 46px;
@@ -614,10 +626,15 @@ button.hos-widget:active {
   flex-direction: column;
   overflow: hidden;
   border-radius: var(--hos-radius-window);
+  isolation: isolate;
   border: 1px solid var(--hos-hairline);
   color: var(--hos-text);
   transform-origin: 50% 50%;
   transition: box-shadow 0.2s ease;
+}
+
+.hos-window-surface > .hos-glass-layer {
+  --hos-faux-radius: calc(var(--hos-radius-window) - 1px);
 }
 
 .hos-desktop .hos-window-surface:focus-visible {
@@ -632,8 +649,8 @@ button.hos-widget:active {
     var(--hos-shadow);
 }
 
-.hos-window-surface.hos-faux-glass {
-  background: var(--hos-faux);
+.hos-window-surface.hos-faux-surface {
+  background: transparent;
   box-shadow:
     inset 0 1px 0 var(--hos-highlight),
     0 0 0 0.5px var(--hos-window-edge-inactive),
