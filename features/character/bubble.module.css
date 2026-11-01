@@ -7,7 +7,6 @@
   border-radius: 18px;
   background: var(--hos-glass);
   backdrop-filter: var(--hos-blur);
-  -webkit-backdrop-filter: var(--hos-blur);
   border: 1px solid var(--hos-hairline);
   box-shadow: var(--hos-shadow), inset 0 1px 0 var(--hos-highlight);
   color: var(--hos-text);
@@ -37,7 +36,6 @@
   height: 12px;
   background: inherit;
   backdrop-filter: none;
-  -webkit-backdrop-filter: none;
   border-right: 1px solid var(--hos-hairline);
   border-bottom: 1px solid var(--hos-hairline);
   border-bottom-right-radius: 3px;

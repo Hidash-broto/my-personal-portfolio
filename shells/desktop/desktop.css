@@ -103,7 +103,6 @@
 /* ---------- Glass surfaces ---------- */
 
 .hos-live-glass {
-  -webkit-backdrop-filter: var(--hos-blur);
   backdrop-filter: var(--hos-blur);
 }
 

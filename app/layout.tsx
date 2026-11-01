@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { BOOT_SCRIPT } from "@/lib/os";
@@ -37,6 +37,14 @@ export const metadata: Metadata = {
     images: ["/my-photo.png"],
   },
   twitter: { card: "summary_large_image", title: siteTitle, description: siteDescription, images: ["/my-photo.png"] },
+};
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#050e26" },
+    { media: "(prefers-color-scheme: light)", color: "#eaf2ff" },
+  ],
 };
 
 export default function RootLayout({

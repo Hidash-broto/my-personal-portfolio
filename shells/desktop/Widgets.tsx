@@ -4,31 +4,16 @@ import { useLayoutEffect, useRef, useSyncExternalStore } from "react";
 import { PROFILE } from "@/data/profile";
 import { posts } from "@/data/posts";
 import { syncFauxGlass } from "@/features/wallpaper/faux-glass";
-import { os, useSpawnSurface } from "@/lib/os";
+import { useSpawnSurface } from "@/lib/os";
+import { readBest, subscribeBest } from "@/features/bug-hunt/best";
 import type { DesktopActions } from "./use-desktop-actions";
 
-const BEST_KEY = "hos_bughunt_best";
 const LATEST = [...posts].sort((a, b) => b.date.localeCompare(a.date))[0];
 
-function subscribeBest(callback: () => void) {
-    window.addEventListener("storage", callback);
-    window.addEventListener("focus", callback);
-    // The game writes the score, then ends the round; read it right after.
-    const off = os.on("game:end", () => queueMicrotask(callback));
-    return () => {
-        window.removeEventListener("storage", callback);
-        window.removeEventListener("focus", callback);
-        off();
-    };
-}
-
-function readBest(): string | null {
-    try {
-        const raw = window.localStorage.getItem(BEST_KEY);
-        return raw && /^\d{1,4}$/.test(raw) ? raw : null;
-    } catch {
-        return null;
-    }
+/** Today's best as display text ("—" handled by the caller when null). */
+function readBestText(): string | null {
+    const best = readBest();
+    return best === null ? null : String(best);
 }
 
 /**
@@ -102,7 +87,7 @@ function LatestNoteWidget({ actions }: { actions: DesktopActions }) {
 
 function BugHuntWidget({ actions }: { actions: DesktopActions }) {
     const ref = useRef<HTMLDivElement>(null);
-    const best = useSyncExternalStore(subscribeBest, readBest, () => null);
+    const best = useSyncExternalStore(subscribeBest, readBestText, () => null);
     useSpawnSurface("widget-bughunt", "widget", ref);
     return (
         <section ref={ref} className="hos-widget hos-widget-bughunt" aria-label="Bug Hunt">
