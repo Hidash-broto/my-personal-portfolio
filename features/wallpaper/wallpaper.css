@@ -1,0 +1,48 @@
+/* Monsoon Blue wallpaper box. Variables are set inline by <Wallpaper> from placeholders.ts. */
+.hos-wallpaper {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  background-color: var(--hos-wp-color-light, var(--hos-bg));
+}
+
+/* The ~32px placeholder, upscaled and softened so it reads as the wallpaper out of focus. */
+.hos-wallpaper::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  background: var(--hos-wp-ph-light) center / cover no-repeat;
+  filter: blur(24px);
+}
+
+.hos-wallpaper__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  transition: opacity 420ms ease-out;
+}
+
+.hos-wallpaper[data-ready] .hos-wallpaper__img {
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .hos-wallpaper {
+    background-color: var(--hos-wp-color-dark, var(--hos-bg));
+  }
+  .hos-wallpaper::before {
+    background-image: var(--hos-wp-ph-dark);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hos-wallpaper__img {
+    transition: none;
+  }
+}
