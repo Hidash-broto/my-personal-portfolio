@@ -1,0 +1,209 @@
+/*
+ * Mini-Hidash pose art. Transforms and opacity only. Every animation is dropped
+ * under prefers-reduced-motion (and data-reduced), leaving a still pose.
+ */
+
+.box {
+  position: relative;
+  display: block;
+  pointer-events: none;
+}
+
+.motion {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transform-origin: 50% 100%;
+}
+
+.motion picture {
+  display: contents;
+}
+
+.img {
+  display: block;
+  max-width: none;
+  flex: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  animation: swap 180ms ease-out;
+}
+
+/* The art points to the viewer's right; Hidash OS points him at the dock, screen-left.
+   (Character flips the whole figure when he walks right.) */
+.box[data-state="point"] .img {
+  transform: scaleX(-1);
+}
+
+.shadow {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -2px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.34), transparent);
+}
+
+/* Badge (Bug Hunt HUD): head and shoulders in a circle. */
+.box[data-bust="true"] {
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.box[data-bust="true"] .motion {
+  align-items: flex-start;
+}
+
+@keyframes swap {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------- motion per state ---------- */
+.box[data-state="idle"] .motion {
+  animation: breathe 3.8s ease-in-out infinite;
+}
+
+.box[data-state="wave"] .motion {
+  animation: sway 0.9s ease-in-out infinite alternate;
+}
+
+.box[data-state="celebrate"] .motion {
+  animation: hop 0.62s cubic-bezier(0.3, 0, 0.4, 1) infinite alternate;
+}
+
+.box[data-state="type"] .motion {
+  animation: breathe 2.6s ease-in-out infinite;
+}
+
+.box[data-state="panic"] .motion {
+  animation: shake 0.32s ease-in-out infinite;
+}
+
+.box[data-state="sleep"] .motion {
+  transform: rotate(-2deg) translateY(1px);
+  filter: saturate(0.75) brightness(0.92);
+  animation: doze 4.6s ease-in-out infinite;
+}
+
+.box[data-walking="true"] .motion {
+  animation: walk 0.36s ease-in-out infinite alternate;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.006, 1.012);
+  }
+}
+
+@keyframes sway {
+  from {
+    transform: rotate(-1.4deg);
+  }
+  to {
+    transform: rotate(1.4deg);
+  }
+}
+
+@keyframes hop {
+  from {
+    transform: translateY(0) scale(1.01, 0.99);
+  }
+  to {
+    transform: translateY(-9%) scale(1, 1.01);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2%);
+  }
+  75% {
+    transform: translateX(2%);
+  }
+}
+
+@keyframes doze {
+  0%,
+  100% {
+    transform: rotate(-2deg) translateY(1px);
+  }
+  50% {
+    transform: rotate(-3deg) translateY(2px);
+  }
+}
+
+@keyframes walk {
+  from {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  to {
+    transform: translateY(-4%) rotate(1.5deg);
+  }
+}
+
+/* ---------- sleep "z z" ---------- */
+.zzz {
+  position: absolute;
+  top: -4%;
+  right: -18%;
+  font: 600 11px/1 ui-rounded, system-ui, sans-serif;
+  color: var(--hos-text-secondary, rgb(255 255 255 / 0.7));
+}
+
+.zzz span {
+  position: absolute;
+  opacity: 0;
+  animation: float 3s ease-out infinite;
+}
+
+.zzz span:nth-child(2) {
+  animation-delay: 1.5s;
+  font-size: 8px;
+}
+
+@keyframes float {
+  0% {
+    opacity: 0;
+    transform: translate(0, 6px);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(6px, -12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion,
+  .img,
+  .zzz span {
+    animation: none !important;
+  }
+  .zzz span:first-child {
+    opacity: 1;
+  }
+}
+
+.box[data-reduced="true"] .motion,
+.box[data-reduced="true"] .img,
+.box[data-reduced="true"] .zzz span {
+  animation: none !important;
+}

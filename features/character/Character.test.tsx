@@ -138,16 +138,26 @@ describe("Character", () => {
         expect(anchor(container)?.dataset.character).toBe("idle");
     });
 
-    it("loads Rive lazily (3s after boot) and keeps the SVG when it resolves null", async () => {
+    it("loads Rive lazily (3s after boot) and keeps the pose art when it resolves null", async () => {
         h.bus.emit("boot:end", { skipped: true });
         const { container } = await mount();
         expect(h.loadRive).not.toHaveBeenCalled();
         await act(async () => vi.advanceTimersByTime(3000));
         expect(h.loadRive).toHaveBeenCalledOnce();
+        expect(container.querySelector("img[src='/character/idle.webp']")).toBeTruthy();
+    });
+
+    it("falls back to the SVG placeholder when the pose art fails to load", async () => {
+        const { container } = await mount();
+        const img = container.querySelector("img[src='/character/idle.webp']")!;
+        act(() => {
+            fireEvent.error(img);
+        });
+        expect(container.querySelector("img")).toBeNull();
         expect(container.querySelector("svg")).toBeTruthy();
     });
 
-    it("swaps in the Rive component when it loads, and back to the SVG on error", async () => {
+    it("swaps in the Rive component when it loads, and back to the pose art on error", async () => {
         let fail: (() => void) | null = null;
         h.loadRive.mockResolvedValue({
             Component: ({ pose, onError }) => {
@@ -163,6 +173,6 @@ describe("Character", () => {
         expect(container.querySelector("canvas[data-rive='idle']")).toBeTruthy();
         act(() => fail!());
         expect(container.querySelector("canvas")).toBeNull();
-        expect(container.querySelector("svg")).toBeTruthy();
+        expect(container.querySelector("img[src='/character/idle.webp']")).toBeTruthy();
     });
 });
