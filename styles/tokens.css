@@ -1,0 +1,49 @@
+/* Hidash OS design tokens — Direction D "Monsoon Blue". Follows the system appearance. */
+:root {
+  --hos-blue: #1463f3;
+  --hos-blue-light: #4c8dff;
+  --hos-blue-deep: #0b4fd6;
+  --hos-blue-mist: #9cc2ff;
+  --hos-turmeric: #f2b705; /* Bug Hunt only */
+
+  --hos-radius-window: 16px;
+  --hos-radius-widget: 22px;
+  --hos-radius-control: 10px;
+  --hos-blur: blur(40px) saturate(180%);
+
+  /* light */
+  --hos-bg: #eaf2ff;
+  --hos-glass: rgba(246, 248, 252, 0.66);
+  --hos-glass-solid: #f3f6fb;
+  --hos-hairline: rgba(11, 18, 32, 0.08);
+  --hos-highlight: rgba(255, 255, 255, 0.7);
+  --hos-text: #0b1220;
+  --hos-text-secondary: rgba(11, 18, 32, 0.62);
+  --hos-shadow: 0 30px 80px rgba(11, 30, 80, 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hos-bg: #050e26;
+    --hos-glass: rgba(20, 24, 36, 0.62);
+    --hos-glass-solid: #161b28;
+    --hos-hairline: rgba(255, 255, 255, 0.12);
+    --hos-highlight: rgba(255, 255, 255, 0.08);
+    --hos-text: #f5f7ff;
+    --hos-text-secondary: rgba(235, 240, 255, 0.65);
+    --hos-shadow: 0 34px 90px rgba(0, 0, 0, 0.55);
+  }
+}
+
+/* Tier B, reduced transparency, or a Bug Hunt round: no live blur. */
+:root[data-glass="solid"] {
+  --hos-glass: var(--hos-glass-solid);
+  --hos-blur: none;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --hos-glass: var(--hos-glass-solid);
+    --hos-blur: none;
+  }
+}

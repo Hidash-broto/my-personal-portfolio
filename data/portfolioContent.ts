@@ -11,11 +11,8 @@ export interface Category {
   defaultFile: string;
 }
 
-export const LINKEDIN_URL = "https://www.linkedin.com/in/muhammed-hidash-74144a228/";
-export const GITHUB_URL = "https://github.com/Hidash-broto";
-export const INSTAGRAM_URL = "https://www.instagram.com/hidashtechtalks/";
-export const EMAIL = "hidash920@gmail.com";
-export const SITE_URL = "https://hidash.in";
+import { LINKEDIN_URL, GITHUB_URL, INSTAGRAM_URL, EMAIL, SITE_URL } from "./links";
+export { LINKEDIN_URL, GITHUB_URL, INSTAGRAM_URL, EMAIL, SITE_URL };
 
 export const portfolioContent: Record<string, Category> = {
   experience: {
