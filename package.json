@@ -10,7 +10,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "wallpaper": "node scripts/wallpaper.mjs",
-    "images": "node scripts/images.mjs"
+    "images": "node scripts/images.mjs",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
