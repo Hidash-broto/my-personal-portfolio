@@ -5,12 +5,13 @@ import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { os, useOs, type ShellKind } from "@/lib/os";
 import Bubble from "./Bubble";
 import Figure from "./Figure";
+import PoseArt from "./PoseArt";
 import { INITIAL, TIMINGS, appContext, connect, reduce, view, type CharLayout } from "./machine";
 import { loadRiveCharacter, type RiveCharacter } from "./rive";
 import s from "./character.module.css";
 
 /** Figure heights per layout, in CSS px. */
-const HEIGHT: Record<Exclude<CharLayout, "none">, number> = { dock: 72, home: 64, badge: 48 };
+const HEIGHT: Record<Exclude<CharLayout, "none">, number> = { dock: 96, home: 64, badge: 48 };
 /** How far he walks when the Builds dock icon can't be found. */
 const FALLBACK_WALK_PX = -160;
 /** The Builds icon in the desktop dock, if the shell marks it. */
@@ -68,6 +69,7 @@ export default function Character({ shell }: { shell: ShellKind }) {
     const [model, dispatch] = useReducer(reduce, INITIAL);
     const reduced = useReducedMotion() ?? false;
     const [rive, setRive] = useRiveCharacter();
+    const [artFailed, setArtFailed] = useState(false);
     const walkerRef = useRef<HTMLDivElement>(null);
     const [walkDx, setWalkDx] = useState(0);
     const stopWalk = useRef<() => void>(() => {});
@@ -146,8 +148,10 @@ export default function Character({ shell }: { shell: ShellKind }) {
     const bust = v.layout === "badge";
     const art = rive ? (
         <rive.Component pose={pose} height={height} walking={model.walking} bust={bust} reduced={reduced} onError={() => setRive(null)} />
-    ) : (
+    ) : artFailed ? (
         <Figure pose={pose} height={height} walking={model.walking} bust={bust} reduced={reduced} />
+    ) : (
+        <PoseArt pose={pose} height={height} walking={model.walking} bust={bust} reduced={reduced} onError={() => setArtFailed(true)} />
     );
 
     return (
