@@ -6,6 +6,7 @@ import { formatDate, posts, readingMinutes, type Post } from "@/data/posts";
 import { useSpawnSurface } from "@/lib/os";
 import { useBugHuntBest, useLaunch } from "./hooks";
 import s from "./phone.module.css";
+import HeadAvatar from "@/components/brand/HeadAvatar";
 
 const WIDGET_RADIUS = 22;
 const cx = (...names: (string | false | undefined)[]) => names.filter(Boolean).join(" ");
@@ -63,7 +64,9 @@ export function ProfileWidget() {
             className={cx(s.widget, s.widgetSquare, s.faux, "hos-faux-glass", s.profile)}
             onClick={() => launch("about", null, { el: ref.current, kind: "widget", radius: WIDGET_RADIUS })}
         >
-            <span className={s.avatar} aria-hidden="true">MH</span>
+            <span className={s.avatar} aria-hidden="true">
+                <HeadAvatar />
+            </span>
             <span className={s.profileName}>{PROFILE.name}</span>
             <span className={s.profileRole}>{PROFILE.role}</span>
             <span className={s.profileHeadline}>{PROFILE.headline}</span>

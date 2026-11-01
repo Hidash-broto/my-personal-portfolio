@@ -10,7 +10,7 @@ import {
     type MotionValue,
     type Transition,
 } from "framer-motion";
-import { useCallback, useLayoutEffect, useRef, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
+import { Suspense, useCallback, useLayoutEffect, useRef, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import { getApp, type WindowAppId } from "@/apps/registry";
 import { APP_VIEWS } from "@/apps/views";
 import { syncFauxGlass } from "@/features/wallpaper/faux-glass";
@@ -307,13 +307,15 @@ export function DesktopWindow({ id, active, item, actions }: DesktopWindowProps)
                 </header>
                 <div className="hos-window-content">
                     <WindowErrorBoundary name={app.name}>
-                        <View
+                        <Suspense fallback={<div className="hos-window-loading" role="status" aria-label={`Opening ${app.name}`} />}>
+                            <View
                             shell="desktop"
                             item={item}
                             openItem={(next) => actions.openItem(id, next)}
                             openApp={(app, next) => actions.launch(app, next ?? null)}
                             close={() => actions.close(id)}
-                        />
+                            />
+                        </Suspense>
                     </WindowErrorBoundary>
                 </div>
             </motion.section>

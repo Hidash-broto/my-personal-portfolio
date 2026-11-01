@@ -176,10 +176,9 @@
 }
 
 .hos-monogram {
-  padding: 0 11px;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.3px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .hos-menu-appname {
@@ -686,6 +685,37 @@ button.hos-widget:active {
 .hos-window:not([data-active]) .hos-titlebar-title {
   color: var(--hos-text-secondary);
   opacity: 0.8;
+}
+
+/* Shown inside a window while its app's code loads (first open on a slow network). */
+.hos-window-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.hos-window-loading::after {
+  content: "";
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-top-color: currentColor;
+  opacity: 0.6;
+  animation: hos-spin 0.8s linear infinite;
+}
+
+@keyframes hos-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hos-window-loading::after {
+    animation-duration: 2.4s;
+  }
 }
 
 .hos-window-content {

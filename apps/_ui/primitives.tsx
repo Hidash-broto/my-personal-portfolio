@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import type { ShellKind } from "@/lib/os";
 import ui from "./ui.module.css";
+import HeadAvatar from "@/components/brand/HeadAvatar";
 
 export function cx(...names: (string | false | null | undefined)[]): string {
     return names.filter(Boolean).join(" ");
@@ -124,7 +125,7 @@ export function TextLink({ href, children }: { href: string; children: ReactNode
     );
 }
 
-/** Profile photo placeholder: initials in a lit blue disc. The real photo replaces it later. */
+/** Profile avatar: mini-Hidash's head in a lit blue disc. `initials` stays for screen-reader-free fallbacks. */
 export function Avatar({ initials, size, label }: { initials: string; size: number; label?: string }) {
     return (
         <span
@@ -133,8 +134,9 @@ export function Avatar({ initials, size, label }: { initials: string; size: numb
             role={label ? "img" : undefined}
             aria-label={label}
             aria-hidden={label ? undefined : true}
+            data-initials={initials}
         >
-            {initials}
+            <HeadAvatar />
         </span>
     );
 }

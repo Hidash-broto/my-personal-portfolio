@@ -6,7 +6,9 @@
  *   node scripts/character.mjs <sheet-dir>
  *
  * <sheet-dir> holds avatar-v3.png (or avatar-v3-green.png, preferred) (turnaround: front, 3/4, side, back) and
- * avatar-poses.png (wave, type, point, celebrate), both on a flat light studio background.
+ * avatar-poses.png (wave, type, point, celebrate), on a flat background (green screen preferred).
+ * Also writes the head avatar (public/character/head.*) and the site icons
+ * (app/icon.png, app/apple-icon.png, app/favicon.ico).
  *
  * Background removal: flood fill from the image border over pixels close to the sampled
  * background colour (so white sneakers and the tee, which are enclosed by the figure's
@@ -17,8 +19,10 @@ import fs from "node:fs/promises";
 import sharp from "sharp";
 
 const OUT = path.join(process.cwd(), "public/character");
-/** Output height in px: 2.5x the largest on-screen figure (96 CSS px). */
-const HEIGHT = 240;
+/** Output height in px: 2.5x the largest on-screen figure (160 CSS px). */
+const HEIGHT = 400;
+/** Monsoon blue disc behind the head in app icons. */
+const DISC = ["#3D86FF", "#1463F3", "#0A3DB8"];
 /** Colour distance (0-441) below which a border-connected pixel is background. */
 const HARD = 30;
 /** Distance band above HARD that fades from transparent to opaque on the cut edge. */
@@ -116,6 +120,71 @@ async function writePose(sheet, [x0, x1], name, { bust = false } = {}) {
     return { name, width: meta.width, height: meta.height };
 }
 
+/** Head and shoulders, square, transparent: the avatar used for the menu bar, widgets and icons. */
+async function headPng(sheet, [x0, x1], size) {
+    const { data, w, h } = sheet;
+    let top = h, bottom = 0;
+    for (let y = 0; y < h; y++) for (let x = x0; x < x1; x++) if (data[(y * w + x) * 4 + 3] > 128) { top = Math.min(top, y); bottom = Math.max(bottom, y); }
+    const figH = bottom - top;
+    // Head centre: mean x of opaque pixels in the top 12% of the figure.
+    let sx = 0, n = 0;
+    for (let y = top; y < top + figH * 0.12; y++) for (let x = x0; x < x1; x++) if (data[(y * w + x) * 4 + 3] > 128) { sx += x; n++; }
+    const cx = Math.round(sx / n);
+    const side = Math.round(figH * 0.25);
+    const left = Math.max(0, cx - (side >> 1));
+    const y0 = Math.max(0, top - Math.round(figH * 0.018));
+    return sharp(data, { raw: { width: w, height: h, channels: 4 } })
+        .extract({ left, top: y0, width: Math.min(side, w - left), height: Math.min(side, h - y0) })
+        .resize(size, size, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+        .png()
+        .toBuffer();
+}
+
+/** The head on a monsoon-blue disc (round) or full-bleed square (for iOS, which masks it). */
+async function iconPng(sheet, range, size, { round, tight = false }) {
+    let head = await headPng(sheet, range, Math.round(size * (round ? 0.9 : 0.86)));
+    if (tight) {
+        // Tiny favicons: the face has to fill the disc to read at 16-32px.
+        const big = await headPng(sheet, range, Math.round(size * 1.45));
+        const bw = (await sharp(big).metadata()).width;
+        head = await sharp(big).extract({ left: Math.round((bw - size) / 2), top: Math.round(bw * 0.05), width: size, height: size - Math.round(size * 0.02) }).png().toBuffer();
+    }
+    const r = size / 2;
+    const bg = Buffer.from(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"><defs><linearGradient id="g" x1="0" y1="0" x2="0.4" y2="1">` +
+            `<stop offset="0" stop-color="${DISC[0]}"/><stop offset="0.55" stop-color="${DISC[1]}"/><stop offset="1" stop-color="${DISC[2]}"/></linearGradient></defs>` +
+            (round ? `<circle cx="${r}" cy="${r}" r="${r}" fill="url(#g)"/>` : `<rect width="${size}" height="${size}" fill="url(#g)"/>`) +
+            `</svg>`,
+    );
+    const offset = Math.round((size - (await sharp(head).metadata()).width) / 2);
+    const headTop = tight ? Math.round(size * 0.02) : Math.round(size * (round ? 0.1 : 0.14));
+    let img = sharp(bg).composite([{ input: head, left: Math.max(0, offset), top: headTop }]);
+    if (round) {
+        const mask = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"><circle cx="${r}" cy="${r}" r="${r}"/></svg>`);
+        img = sharp(await img.png().toBuffer()).composite([{ input: mask, blend: "dest-in" }]);
+    }
+    return img.png({ compressionLevel: 9, palette: true, quality: 92, effort: 10 }).toBuffer();
+}
+
+/** A .ico holding PNG images (supported by every current browser). */
+function ico(pngs) {
+    const header = Buffer.alloc(6 + 16 * pngs.length);
+    header.writeUInt16LE(1, 2);
+    header.writeUInt16LE(pngs.length, 4);
+    let offset = header.length;
+    pngs.forEach(({ size, buf }, i) => {
+        const e = 6 + 16 * i;
+        header.writeUInt8(size >= 256 ? 0 : size, e);
+        header.writeUInt8(size >= 256 ? 0 : size, e + 1);
+        header.writeUInt16LE(1, e + 4);
+        header.writeUInt16LE(32, e + 6);
+        header.writeUInt32LE(buf.length, e + 8);
+        header.writeUInt32LE(offset, e + 12);
+        offset += buf.length;
+    });
+    return Buffer.concat([header, ...pngs.map((p) => p.buf)]);
+}
+
 const dir = process.argv[2];
 if (!dir) {
     console.error("usage: node scripts/character.mjs <sheet-dir>");
@@ -132,12 +201,26 @@ const [front] = figures(turn, 4);
 const [wave, type, point, celebrate] = figures(poses, 4);
 const out = [
     await writePose(turn, front, "idle"),
-    await writePose(turn, front, "bust", { bust: true }),
     await writePose(poses, wave, "wave"),
     await writePose(poses, type, "type"),
     await writePose(poses, point, "point"),
     await writePose(poses, celebrate, "celebrate"),
 ];
+// Head avatar (menu bar, widgets, About, share poster) and the site icons.
+const head = await headPng(turn, front, 256);
+await sharp(head).avif({ quality: 60, effort: 6 }).toFile(path.join(OUT, "head.avif"));
+await sharp(head).webp({ quality: 84, alphaQuality: 90 }).toFile(path.join(OUT, "head.webp"));
+await fs.rm(path.join(OUT, "bust.avif"), { force: true });
+await fs.rm(path.join(OUT, "bust.webp"), { force: true });
+const app = path.join(process.cwd(), "app");
+await fs.writeFile(path.join(app, "icon.png"), await iconPng(turn, front, 512, { round: true }));
+await fs.writeFile(path.join(app, "apple-icon.png"), await iconPng(turn, front, 180, { round: false }));
+const icoSizes = [16, 32, 48];
+await fs.writeFile(
+    path.join(app, "favicon.ico"),
+    ico(await Promise.all(icoSizes.map(async (size) => ({ size, buf: await iconPng(turn, front, size * 4, { round: true, tight: true }).then((b) => sharp(b).resize(size, size).png().toBuffer()) })))),
+);
+out.push({ name: "head", width: 256, height: 256 });
 await fs.rm(path.join(OUT, "manifest.json"), { force: true });
 const sizes = Object.fromEntries(out.map((o) => [o.name, { w: o.width, h: o.height }]));
 await fs.writeFile(

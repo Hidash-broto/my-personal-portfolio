@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { preloadAppViews } from "@/apps/views";
 import BootScreen from "@/features/boot/BootScreen";
 import OsAnalytics from "./OsAnalytics";
 import { markSeen, os, OsProvider, readShell } from "@/lib/os";
@@ -10,6 +11,8 @@ const DesktopShell = dynamic(() => import("@/shells/desktop/DesktopShell"), { ss
 const PhoneShell = dynamic(() => import("@/shells/phone/PhoneShell"), { ssr: false });
 
 const never = () => () => {};
+/** After boot:end; long enough to stay out of the first-visit critical path. */
+const PRELOAD_DELAY_MS = 2500;
 const onWallpaper = (cb: () => void) => {
     window.addEventListener("hos:wallpaper-ready", cb);
     return () => window.removeEventListener("hos:wallpaper-ready", cb);
@@ -30,6 +33,22 @@ export default function OsRoot() {
         os.setFirstVisit(readFirstVisit());
         if (!bootOn) os.emit("boot:end", { skipped: new URLSearchParams(window.location.search).has("app") || new URLSearchParams(window.location.search).has("w") });
     }, [shell, bootOn]);
+
+    // Warm every app's code once the OS has settled, so a first open never waits on the network.
+    useEffect(() => {
+        if (!shell) return;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const arm = () => {
+            clearTimeout(timer);
+            timer = setTimeout(preloadAppViews, PRELOAD_DELAY_MS);
+        };
+        const off = os.on("boot:end", arm);
+        if (os.lifecycle().booted) arm();
+        return () => {
+            off();
+            clearTimeout(timer);
+        };
+    }, [shell]);
 
     const finishBoot = useCallback(() => {
         markSeen();

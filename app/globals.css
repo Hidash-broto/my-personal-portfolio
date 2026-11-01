@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
+@import "../styles/brand.css";
 
 :root {
   --glass-bg: rgba(30, 30, 30, 0.75);

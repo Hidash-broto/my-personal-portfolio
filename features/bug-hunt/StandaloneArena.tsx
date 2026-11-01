@@ -7,6 +7,7 @@ import { readShell, useSpawnSurface, type ShellKind, type SpawnKind } from "@/li
 import OsAnalytics from "@/components/os/OsAnalytics";
 import BugHuntGame from "./BugHuntGame";
 import styles from "./arena.module.css";
+import HeadAvatar from "@/components/brand/HeadAvatar";
 
 /** A piece of the arena that bugs can crawl out of. */
 function Surface({ id, kind, className, children, href, label }: { id: string; kind: SpawnKind; className: string; children: ReactNode; href?: string; label?: string }) {
@@ -114,7 +115,7 @@ export default function StandaloneArena() {
             <OsAnalytics />
             <Wallpaper />
             <header className={styles.menubar}>
-                <span className={styles.monogram} aria-hidden="true">H</span>
+                <HeadAvatar size={20} className={styles.monogram} />
                 <span className={styles.menuStrong}>Hidash OS</span>
                 <span className={styles.menuHideSmall}>Bug Hunt</span>
                 <Link className={styles.menuLink} href="/" prefetch={false}>
@@ -125,7 +126,9 @@ export default function StandaloneArena() {
             <div className={styles.desk}>
                 <div className={styles.widgets}>
                     <Surface id="arena-profile" kind="widget" className={`${styles.glass} ${styles.widget} ${styles.profile}`}>
-                        <span className={styles.avatar} aria-hidden="true">H</span>
+                        <span className={styles.avatar} aria-hidden="true">
+                            <HeadAvatar />
+                        </span>
                         <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
                             <span className={styles.widgetTitle}>Muhammed Hidash</span>
                             <span className={styles.widgetLabel}>CTO @ Dentobees</span>

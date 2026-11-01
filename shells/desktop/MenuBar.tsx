@@ -10,6 +10,7 @@ import { readGlassPref, setGlassPref, subscribeGlassPref } from "./glass-pref";
 import { MenuPopup, type MenuEntry } from "./MenuPopup";
 import type { MenuId, Overlay, SetOverlay } from "./overlay";
 import type { DesktopActions } from "./use-desktop-actions";
+import HeadAvatar from "@/components/brand/HeadAvatar";
 
 interface MenuDef {
     id: MenuId;
@@ -222,7 +223,7 @@ export function MenuBar({ overlay, setOverlay, actions }: MenuBarProps) {
                                     }
                                 }}
                             >
-                                {menu.id === "hidash" ? "H" : menu.label}
+                                {menu.id === "hidash" ? <HeadAvatar size={20} /> : menu.label}
                             </button>
                             {menu.id === "hidash" && (
                                 <span className="hos-menu-appname" aria-live="polite">

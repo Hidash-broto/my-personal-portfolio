@@ -47,6 +47,35 @@ test.describe("desktop", () => {
         expect(errors).toEqual([]);
     });
 
+    test("a first open on a slow network never blanks the desktop", async ({ page, context, baseURL }) => {
+        await asReturningVisitor(context, baseURL!);
+        // Hold every JS chunk so the app's code is still loading when the window opens.
+        await context.route("**/_next/static/chunks/**", async (route) => {
+            await new Promise((ok) => setTimeout(ok, 400));
+            await route.continue();
+        });
+        await page.goto("/");
+        const dock = page.getByRole("navigation", { name: "Dock" });
+        await dock.waitFor();
+        await page.waitForTimeout(1200); // settle, but open before the background preload starts
+        // Count animation frames in which the dock is not visible (no retrying: a blink must fail).
+        await page.evaluate(() => {
+            const w = window as unknown as { __hiddenFrames: number };
+            w.__hiddenFrames = 0;
+            const t0 = performance.now();
+            const tick = () => {
+                const nav = document.querySelector("nav[aria-label='Dock']");
+                if (!nav || !nav.checkVisibility()) w.__hiddenFrames++;
+                if (performance.now() - t0 < 2000) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+        });
+        await dock.getByLabel("Builds", { exact: true }).click();
+        await expect(page.getByRole("button", { name: "Close Builds" })).toBeVisible();
+        await page.waitForTimeout(2000);
+        expect(await page.evaluate(() => (window as unknown as { __hiddenFrames: number }).__hiddenFrames)).toBe(0);
+    });
+
     test("minimize keeps the URL", async ({ page, context, baseURL }) => {
         await asReturningVisitor(context, baseURL!);
         await page.goto("/?w=journey&focus=journey");

@@ -16,7 +16,7 @@ describe.each(SHELLS)("single-page apps — %s", (shell) => {
         renderView(AboutView, shell);
         expect(screen.getByRole("heading", { level: 1, name: PROFILE.name })).toBeTruthy();
         expect(screen.getByText(PROFILE.headline)).toBeTruthy();
-        expect(screen.getByText("MH")).toBeTruthy();
+        expect(document.querySelector("[data-initials=\"MH\"] img[src=\"/character/head.webp\"]")).toBeTruthy();
         expect(screen.getByText(PROFILE.outsideWork)).toBeTruthy();
         const hrefs = screen.getAllByRole("link").map((a) => a.getAttribute("href"));
         expect(hrefs).toEqual(expect.arrayContaining(["/?app=notes", "/?app=sayhi", "/?app=builds", LINKEDIN_URL]));
