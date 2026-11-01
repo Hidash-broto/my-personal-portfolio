@@ -1,0 +1,191 @@
+/* /bug-hunt/s/[token]: poster-style score card. Always the Monsoon Blue night. */
+
+.page {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  color: #f5f7ff;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: #050e26;
+  background-image:
+    radial-gradient(60% 45% at 82% 18%, rgba(20, 99, 243, 0.55), rgba(5, 14, 38, 0) 70%),
+    radial-gradient(70% 45% at 10% 100%, rgba(76, 141, 255, 0.4), rgba(5, 14, 38, 0) 70%),
+    linear-gradient(160deg, #030a1e 0%, #08215c 60%, #041233 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 28px) 16px calc(env(safe-area-inset-bottom, 0px) + 28px);
+  box-sizing: border-box;
+}
+
+.poster {
+  width: 100%;
+  max-width: 440px;
+  margin: auto 0;
+  border-radius: 28px;
+  padding: 26px 22px 22px;
+  box-sizing: border-box;
+  background: rgba(20, 24, 36, 0.62);
+  backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 40px 100px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(235, 240, 255, 0.72);
+}
+
+.mono {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 15px;
+  color: #fff;
+  background: linear-gradient(180deg, #4c8dff, #0b4fd6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+  position: relative;
+}
+
+.heroBug {
+  transform: rotate(14deg);
+  filter: drop-shadow(0 12px 24px rgba(242, 183, 5, 0.25));
+  margin-bottom: 4px;
+}
+
+.headline {
+  margin: 0;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 650;
+  letter-spacing: -0.2px;
+}
+
+.score {
+  font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 120px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -4px;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #ffe08a 0%, #f2b705 70%, #d99a00 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding: 0 8px;
+}
+
+.scoreLabel {
+  font-size: 17px;
+  font-weight: 600;
+  color: rgba(245, 247, 255, 0.9);
+}
+
+.sub {
+  margin: 0;
+  font-size: 15px;
+  line-height: 21px;
+  color: rgba(235, 240, 255, 0.68);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(235, 240, 255, 0.55);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px 10px 8px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.itemName {
+  display: block;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 19px;
+}
+
+.itemLesson {
+  display: block;
+  font-size: 13px;
+  line-height: 18px;
+  color: rgba(235, 240, 255, 0.68);
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffd15c, #f2b705);
+  color: #1a1300;
+  font-size: 17px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 0 rgba(120, 80, 0, 0.25), 0 8px 22px rgba(242, 183, 5, 0.35);
+  transition: transform 0.18s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.18s;
+}
+
+.cta:hover {
+  filter: brightness(1.05);
+}
+
+.cta:active {
+  transform: scale(0.98);
+}
+
+.cta:focus-visible {
+  outline: 2px solid #4c8dff;
+  outline-offset: 3px;
+}
+
+.foot {
+  margin-top: 18px;
+  font-size: 13px;
+  color: rgba(235, 240, 255, 0.55);
+}
+
+.foot a {
+  color: #9cc2ff;
+  text-decoration: none;
+  font-weight: 600;
+}
