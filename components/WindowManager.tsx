@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
 
-export type WindowId = "experience" | "projects" | "about" | "whyHireMe" | "contact";
+export type WindowId = "experience" | "projects" | "about" | "beliefs" | "contact";
 
 interface WindowState {
     isOpen: boolean;
@@ -31,7 +31,7 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
         experience: { ...defaultWindowState },
         projects: { ...defaultWindowState },
         about: { ...defaultWindowState },
-        whyHireMe: { ...defaultWindowState },
+        beliefs: { ...defaultWindowState },
         contact: { ...defaultWindowState },
     });
 

@@ -2,31 +2,35 @@
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { Briefcase, FolderGit2, User, Rocket, Mail, MessageCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Briefcase, FolderGit2, User, Compass, Mail, NotebookPen, Linkedin } from "lucide-react";
 import { useWindowManager, WindowId } from "./WindowManager";
+import { LINKEDIN_URL } from "@/data/portfolioContent";
 
 interface DockItem {
-    id: WindowId | "whatsapp";
+    id: WindowId | "notes" | "linkedin";
     label: string;
     filename: string;
     icon: typeof Briefcase;
     color: string;
-    isExternal?: boolean;
+    href?: string; // internal route
     externalUrl?: string;
 }
 
 const dockItems: DockItem[] = [
-    { id: "experience", label: "Experience", filename: "Experience.tsx", icon: Briefcase, color: "#3b82f6" },
-    { id: "projects", label: "Projects", filename: "Projects.tsx", icon: FolderGit2, color: "#8b5cf6" },
-    { id: "about", label: "About Me", filename: "AboutMe.tsx", icon: User, color: "#06b6d4" },
-    { id: "whyHireMe", label: "Why Hire Me", filename: "WhyHireMe.tsx", icon: Rocket, color: "#f59e0b" },
-    { id: "contact", label: "Contact", filename: "Contact.tsx", icon: Mail, color: "#10b981" },
-    { id: "whatsapp", label: "WhatsApp", filename: "WhatsApp", icon: MessageCircle, color: "#25D366", isExternal: true, externalUrl: "https://wa.me/917736574157" },
+    { id: "experience", label: "Journey", filename: "Journey", icon: Briefcase, color: "#3b82f6" },
+    { id: "projects", label: "Builds", filename: "Builds", icon: FolderGit2, color: "#8b5cf6" },
+    { id: "about", label: "About", filename: "About", icon: User, color: "#06b6d4" },
+    { id: "beliefs", label: "Beliefs", filename: "Beliefs", icon: Compass, color: "#f59e0b" },
+    { id: "notes", label: "Notes", filename: "Notes (blog)", icon: NotebookPen, color: "#ec4899", href: "/blog" },
+    { id: "contact", label: "Say Hi", filename: "Say Hi", icon: Mail, color: "#10b981" },
+    { id: "linkedin", label: "LinkedIn", filename: "LinkedIn", icon: Linkedin, color: "#0a66c2", externalUrl: LINKEDIN_URL },
 ];
 
 function DockIcon({ item, mouseX }: { item: DockItem; mouseX: ReturnType<typeof useMotionValue<number>> }) {
     const ref = useRef<HTMLDivElement>(null);
     const { openWindow, windows } = useWindowManager();
+    const router = useRouter();
 
     const distance = useTransform(mouseX, (val) => {
         const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
@@ -36,12 +40,15 @@ function DockIcon({ item, mouseX }: { item: DockItem; mouseX: ReturnType<typeof 
     const widthSync = useTransform(distance, [-150, 0, 150], [48, 72, 48]);
     const width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
 
-    const isOpen = item.isExternal ? false : windows[item.id as WindowId]?.isOpen;
+    const isWindow = !item.href && !item.externalUrl;
+    const isOpen = isWindow && windows[item.id as WindowId]?.isOpen;
     const Icon = item.icon;
 
     const handleClick = () => {
-        if (item.isExternal && item.externalUrl) {
-            window.open(item.externalUrl, "_blank");
+        if (item.externalUrl) {
+            window.open(item.externalUrl, "_blank", "noopener,noreferrer");
+        } else if (item.href) {
+            router.push(item.href);
         } else {
             openWindow(item.id as WindowId);
         }

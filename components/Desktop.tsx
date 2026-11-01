@@ -1,9 +1,9 @@
 "use client";
 
 import { ReactNode, useState } from "react";
+import { useRouter } from "next/navigation";
 import DesktopIcon from "./DesktopIcon";
 import FolderViewer from "./FolderViewer";
-import PDFViewer from "./PDFViewer";
 
 interface DesktopProps {
     children: ReactNode;
@@ -36,15 +36,7 @@ const meImages = [
 
 export default function Desktop({ children }: DesktopProps) {
     const [showMeFolder, setShowMeFolder] = useState(false);
-    const [showPDFViewer, setShowPDFViewer] = useState(false);
-
-    const handleResumeClick = () => {
-        setShowPDFViewer(true);
-    };
-
-    const handleMeFolderClick = () => {
-        setShowMeFolder(true);
-    };
+    const router = useRouter();
 
     return (
         <div className="relative bg-[#273947] h-screen w-screen overflow-hidden">
@@ -54,21 +46,18 @@ export default function Desktop({ children }: DesktopProps) {
                 style={{ backgroundImage: "url('/my-photo.png')" }}
             />
 
-            {/* Dark tint overlay with blur */}
-            {/* <div className="absolute inset-0 bg-black/50 backdrop-blur-[4px]" /> */}
-
             {/* Desktop Icons */}
             <div className="absolute top-16 left-10 z-20">
                 <DesktopIcon
-                    name="Resume.pdf"
+                    name="Notes"
                     type="file"
-                    onClick={handleResumeClick}
+                    onClick={() => router.push("/blog")}
                     position={{ x: 0, y: 0 }}
                 />
                 <DesktopIcon
                     name="Me"
                     type="folder"
-                    onClick={handleMeFolderClick}
+                    onClick={() => setShowMeFolder(true)}
                     position={{ x: 0, y: 100 }}
                 />
             </div>
@@ -83,14 +72,6 @@ export default function Desktop({ children }: DesktopProps) {
                 />
             )}
 
-            {/* PDF Viewer */}
-            <PDFViewer
-                isOpen={showPDFViewer}
-                onClose={() => setShowPDFViewer(false)}
-                pdfUrl="/Muhammed Hidash Resume.pdf"
-                title="Muhammed Hidash Resume"
-            />
-
             {/* Content layer */}
             <div className="relative z-10 h-full w-full">
                 {children}
@@ -98,4 +79,3 @@ export default function Desktop({ children }: DesktopProps) {
         </div>
     );
 }
-

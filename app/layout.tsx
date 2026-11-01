@@ -12,16 +12,30 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteTitle = "Muhammed Hidash — Startup Builder & Software Engineer";
+const siteDescription =
+  "Startup builder. Tech by craft, business by curiosity. Engineer at heart, product builder by choice. CTO at Dentobees.";
+
 export const metadata: Metadata = {
-  title: "Portfolio | Full-Stack Developer",
-  description: "Full-Stack Developer specializing in building scalable web applications. Problem Solver & Freelancer.",
-  keywords: ["developer", "portfolio", "full-stack", "react", "next.js", "typescript"],
-  authors: [{ name: "Muhammed Hidash" }],
+  metadataBase: new URL("https://hidash.in"),
+  title: { default: siteTitle, template: "%s — Muhammed Hidash" },
+  description: siteDescription,
+  keywords: [
+    "Muhammed Hidash", "startup builder", "software engineer", "CTO", "Dentobees",
+    "product engineering", "systems architecture", "applied AI", "SaaS",
+  ],
+  authors: [{ name: "Muhammed Hidash", url: "https://hidash.in" }],
+  creator: "Muhammed Hidash",
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "Portfolio | Full-Stack Developer",
-    description: "Full-Stack Developer specializing in building scalable web applications.",
+    title: siteTitle,
+    description: siteDescription,
+    url: "/",
+    siteName: "Muhammed Hidash",
     type: "website",
+    images: ["/my-photo.png"],
   },
+  twitter: { card: "summary_large_image", title: siteTitle, description: siteDescription, images: ["/my-photo.png"] },
 };
 
 export default function RootLayout({
