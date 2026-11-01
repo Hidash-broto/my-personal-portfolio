@@ -14,7 +14,7 @@
  *    viewport-sized, fixed layer with the blurred wallpaper at the same cover/center geometry as
  *    <Wallpaper>, so it lines up with the real wallpaper pixel for pixel, on iOS too, at zero JS cost.
  *    Caveat: `position: fixed` resolves against the nearest ancestor with a transform, filter,
- *    perspective, `contain: paint` or `will-change: transform`. Inside such an ancestor (react-rnd
+ *    perspective, `contain: paint` or `will-change: transform`. Inside such an ancestor (a drag library
  *    windows positioned with transform, swipeable home pages, a spring animation in flight) the layer
  *    pins to that ancestor instead of the viewport — use mode 2 there.
  *

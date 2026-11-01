@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { posts, getPost, formatDate, readingMinutes, type Block } from "@/data/posts";
-import { LINKEDIN_URL, SITE_URL } from "@/data/portfolioContent";
+import { LINKEDIN_URL, SITE_URL } from "@/data/links";
 
 type Props = { params: Promise<{ slug: string }> };
 

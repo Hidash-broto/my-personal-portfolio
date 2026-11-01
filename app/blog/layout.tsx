@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LINKEDIN_URL } from "@/data/portfolioContent";
+import { LINKEDIN_URL } from "@/data/links";
 
 export default function BlogLayout({ children }: { children: React.ReactNode }) {
     return (

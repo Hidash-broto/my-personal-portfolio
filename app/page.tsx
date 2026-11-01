@@ -1,7 +1,7 @@
 import Link from "next/link";
 import OsRoot from "@/components/os/OsRoot";
 import { posts } from "@/data/posts";
-import { LINKEDIN_URL, GITHUB_URL, INSTAGRAM_URL, SITE_URL } from "@/data/portfolioContent";
+import { LINKEDIN_URL, GITHUB_URL, INSTAGRAM_URL, SITE_URL } from "@/data/links";
 
 const personJsonLd = {
     "@context": "https://schema.org",
