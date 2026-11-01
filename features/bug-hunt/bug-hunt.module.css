@@ -10,7 +10,7 @@
   --bh-fill-strong: rgba(11, 18, 32, 0.08);
   --bh-link: #0b4fd6;
   --bh-sheet: rgba(248, 250, 254, 0.9);
-  --bh-hud: rgba(246, 248, 252, 0.94);
+  --bh-hud: rgb(246, 248, 252);
   --bh-spring: cubic-bezier(0.2, 0.9, 0.25, 1.15);
   --bh-ease: cubic-bezier(0.25, 0.8, 0.25, 1);
   font-family: var(--bh-font);
@@ -26,7 +26,7 @@
     --bh-fill-strong: rgba(255, 255, 255, 0.1);
     --bh-link: #7fb2ff;
     --bh-sheet: rgba(20, 24, 36, 0.84);
-    --bh-hud: rgba(22, 27, 40, 0.94);
+    --bh-hud: rgb(22, 27, 40);
   }
 }
 
