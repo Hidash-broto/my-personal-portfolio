@@ -23,8 +23,10 @@ test("analytics: a shared link lands as a referred first visit", async ({ page }
 test("a deep link skips the boot and the first back stays on the site", async ({ page }) => {
     await page.goto("/?app=builds");
     await expect(page.getByRole("status", { name: "Hidash OS is starting" })).toHaveCount(0);
+    // Wait for the shell (a lazy chunk) to mount: it inserts the base "/" entry under the deep link.
+    await expect(page.getByRole("button", { name: /^(Close Builds|Back to home screen)$/ })).toBeVisible();
     await page.goBack();
-    expect(where(page)).toBe("/");
+    await expect.poll(() => where(page)).toBe("/");
 });
 
 test.describe("desktop", () => {
