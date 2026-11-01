@@ -1,0 +1,288 @@
+/*
+ * Mini-Hidash placeholder poses. Transforms only (no layout, no paint-heavy filters per frame).
+ * Lengths inside the SVG are viewBox units; pivots are set inline per part (transform-box: view-box).
+ * Static pose per state = the plain `transform` rules; motion = the `animation` rules,
+ * all of which are dropped under prefers-reduced-motion.
+ */
+
+.svg {
+  display: block;
+  overflow: visible;
+}
+
+.part {
+  transform-box: view-box;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- idle: slow breathing ---------- */
+.body {
+  animation: breathe 3.8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(0.7px);
+  }
+}
+
+/* ---------- blink (JS toggles data-blink every 4–7s) ---------- */
+.eyes {
+  transition: transform 70ms ease-out;
+}
+
+.svg[data-blink="true"] .eyes {
+  transform: scaleY(0.12);
+}
+
+/* ---------- wave ---------- */
+.svg[data-state="wave"] .armR {
+  transform: rotate(-110deg);
+}
+
+.svg[data-state="wave"] .foreR {
+  transform: rotate(-65deg);
+  animation: wave 0.46s ease-in-out infinite alternate;
+}
+
+.svg[data-state="wave"] .head {
+  transform: rotate(-3deg);
+}
+
+@keyframes wave {
+  from {
+    transform: rotate(-46deg);
+  }
+  to {
+    transform: rotate(-84deg);
+  }
+}
+
+/* ---------- point (toward the dock / Builds, screen-left) ---------- */
+.svg[data-state="point"] .armL {
+  transform: rotate(72deg);
+}
+
+.svg[data-state="point"] .foreL {
+  transform: rotate(14deg);
+}
+
+.svg[data-state="point"] .head {
+  transform: rotate(-5deg);
+}
+
+/* Walking toward the dock: steps + bob. */
+.svg[data-walking="true"] .legL {
+  animation: stepA 0.36s ease-in-out infinite alternate;
+}
+
+.svg[data-walking="true"] .legR {
+  animation: stepB 0.36s ease-in-out infinite alternate;
+}
+
+.svg[data-walking="true"] .figure {
+  animation: walkBob 0.18s ease-in-out infinite alternate;
+}
+
+@keyframes stepA {
+  from {
+    transform: rotate(7deg);
+  }
+  to {
+    transform: rotate(-7deg);
+  }
+}
+
+@keyframes stepB {
+  from {
+    transform: rotate(-7deg);
+  }
+  to {
+    transform: rotate(7deg);
+  }
+}
+
+@keyframes walkBob {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-1.6px);
+  }
+}
+
+/* ---------- type ---------- */
+.svg[data-state="type"] .armL {
+  transform: rotate(5deg);
+}
+
+.svg[data-state="type"] .foreL {
+  transform: rotate(-44deg);
+  animation: tapL 0.22s ease-in-out infinite alternate;
+}
+
+.svg[data-state="type"] .armR {
+  transform: rotate(-5deg);
+}
+
+.svg[data-state="type"] .foreR {
+  transform: rotate(44deg);
+  animation: tapR 0.22s ease-in-out 0.11s infinite alternate;
+}
+
+.svg[data-state="type"] .head {
+  transform: rotate(3deg) translateY(0.6px);
+}
+
+@keyframes tapL {
+  from {
+    transform: rotate(-44deg);
+  }
+  to {
+    transform: rotate(-41deg);
+  }
+}
+
+@keyframes tapR {
+  from {
+    transform: rotate(44deg);
+  }
+  to {
+    transform: rotate(41deg);
+  }
+}
+
+/* ---------- celebrate: arms up + small hop ---------- */
+.svg[data-state="celebrate"] .armL {
+  transform: rotate(152deg);
+}
+
+.svg[data-state="celebrate"] .foreL {
+  transform: rotate(12deg);
+}
+
+.svg[data-state="celebrate"] .armR {
+  transform: rotate(-152deg);
+}
+
+.svg[data-state="celebrate"] .foreR {
+  transform: rotate(-12deg);
+}
+
+.svg[data-state="celebrate"] .figure {
+  animation: hop 0.72s cubic-bezier(0.3, 0, 0.3, 1) infinite;
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ---------- sleep: head drops, glasses up, z's ---------- */
+.svg[data-state="sleep"] .head {
+  transform: rotate(7deg) translateY(0.8px);
+}
+
+.svg[data-state="sleep"] .glasses {
+  transform: translateY(-6.6px);
+}
+
+.svg[data-state="sleep"] .body {
+  animation-duration: 5.4s;
+}
+
+.z {
+  opacity: 0.75;
+  animation: drift 2.7s ease-out infinite;
+}
+
+.z:nth-of-type(2) {
+  animation-delay: 0.9s;
+}
+
+.z:nth-of-type(3) {
+  animation-delay: 1.8s;
+}
+
+@keyframes drift {
+  0% {
+    opacity: 0;
+    transform: translate(0, 2px);
+  }
+  30% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(3px, -5px);
+  }
+}
+
+/* ---------- panic: hands up, brows up, sweat, faster jittery bob ---------- */
+.svg[data-state="panic"] .armL {
+  transform: rotate(40deg);
+}
+
+.svg[data-state="panic"] .foreL {
+  transform: rotate(150deg);
+}
+
+.svg[data-state="panic"] .armR {
+  transform: rotate(-40deg);
+}
+
+.svg[data-state="panic"] .foreR {
+  transform: rotate(-150deg);
+}
+
+.svg[data-state="panic"] .brows {
+  transform: translateY(-1.3px);
+}
+
+.svg[data-state="panic"] .figure {
+  animation: jitter 0.3s ease-in-out infinite alternate;
+}
+
+.sweat {
+  animation: drip 1.1s ease-in infinite;
+}
+
+@keyframes jitter {
+  0% {
+    transform: translate(-0.5px, 0);
+  }
+  100% {
+    transform: translate(0.5px, -1.4px);
+  }
+}
+
+@keyframes drip {
+  0% {
+    opacity: 0;
+    transform: translateY(-1px);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svg,
+  .svg * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

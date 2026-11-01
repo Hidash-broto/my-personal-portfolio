@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { posts } from "@/data/posts";
-import { SITE_URL } from "@/data/portfolioContent";
+import { SITE_URL } from "@/data/links";
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const latest = posts.reduce((max, p) => (p.date > max ? p.date : max), posts[0].date);

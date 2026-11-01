@@ -1,0 +1,90 @@
+/*
+ * Faux glass — `.hos-faux-glass`
+ *
+ * Tier A unfocused windows/widgets and every Tier B surface show the pre-blurred wallpaper companion
+ * (public/wallpaper/*-blur.*) pinned to viewport coordinates under the glass tint, instead of a live
+ * backdrop-filter.
+ *
+ * Why not `background-attachment: fixed`? iOS WebKit ignores it (it renders as `scroll`), so the
+ * image would move with the element. Instead:
+ *
+ * 1. Default mode — fixed layer clipped to the element.
+ *    The element gets `clip-path: inset(0 round <radius>)`, which creates a stacking context and clips
+ *    everything it paints, including a `position: fixed` child. Its ::before is that child: a
+ *    viewport-sized, fixed layer with the blurred wallpaper at the same cover/center geometry as
+ *    <Wallpaper>, so it lines up with the real wallpaper pixel for pixel, on iOS too, at zero JS cost.
+ *    Caveat: `position: fixed` resolves against the nearest ancestor with a transform, filter,
+ *    perspective, `contain: paint` or `will-change: transform`. Inside such an ancestor (a drag library
+ *    windows positioned with transform, swipeable home pages, a spring animation in flight) the layer
+ *    pins to that ancestor instead of the viewport — use mode 2 there.
+ *
+ * 2. Offset mode — `data-faux="offset"` + `--hos-faux-x` / `--hos-faux-y`.
+ *    The layer is absolutely positioned inside the element, sized to the viewport's cover box, and
+ *    shifted by the element's viewport offset. The shell keeps the two variables in sync on drag /
+ *    swipe frames (see `syncFauxGlass()` in features/wallpaper/faux-glass.ts).
+ *
+ * The tint is the glass token, painted over the image in the same layer: `var(--hos-glass)`, which
+ * tokens.css already turns solid for Tier B (`data-glass="solid"`) and reduced transparency.
+ * Set `--hos-faux-radius` per surface (defaults to the window radius; widgets use 22px).
+ */
+
+:root {
+  --hos-faux-webp: url("/wallpaper/light-desktop-blur.webp");
+  --hos-faux-avif: url("/wallpaper/light-desktop-blur.avif");
+  --hos-faux-aspect: 1.6; /* 2560 / 1600 */
+}
+:root[data-shell="phone"] {
+  --hos-faux-webp: url("/wallpaper/light-phone-blur.webp");
+  --hos-faux-avif: url("/wallpaper/light-phone-blur.avif");
+  --hos-faux-aspect: 0.4614; /* 1290 / 2796 */
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hos-faux-webp: url("/wallpaper/dark-desktop-blur.webp");
+    --hos-faux-avif: url("/wallpaper/dark-desktop-blur.avif");
+  }
+  :root[data-shell="phone"] {
+    --hos-faux-webp: url("/wallpaper/dark-phone-blur.webp");
+    --hos-faux-avif: url("/wallpaper/dark-phone-blur.avif");
+  }
+}
+
+.hos-faux-glass {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--hos-faux-radius, var(--hos-radius-window));
+  clip-path: inset(0 round var(--hos-faux-radius, var(--hos-radius-window)));
+}
+
+.hos-faux-glass::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--hos-bg);
+  background-image: linear-gradient(var(--hos-glass), var(--hos-glass)), var(--hos-faux-webp);
+  background-size: auto, cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@supports (background-image: image-set(url("x.avif") type("image/avif"))) {
+  .hos-faux-glass::before {
+    background-image:
+      linear-gradient(var(--hos-glass), var(--hos-glass)),
+      image-set(var(--hos-faux-avif) type("image/avif"), var(--hos-faux-webp) type("image/webp"));
+  }
+}
+
+/* Offset mode: for surfaces inside a transformed ancestor. Cover box of the viewport, shifted by the
+   element's viewport offset so the image still lines up with the wallpaper behind it. */
+.hos-faux-glass[data-faux="offset"]::before {
+  --hos-faux-w: max(100vw, 100vh * var(--hos-faux-aspect));
+  --hos-faux-h: max(100vh, 100vw / var(--hos-faux-aspect));
+  position: absolute;
+  background-size: auto, var(--hos-faux-w) var(--hos-faux-h);
+  background-position:
+    0 0,
+    calc((100vw - var(--hos-faux-w)) / 2 - var(--hos-faux-x, 0px)) calc((100vh - var(--hos-faux-h)) / 2 - var(--hos-faux-y, 0px));
+}
