@@ -7,7 +7,7 @@ import Wallpaper from "@/features/wallpaper/Wallpaper";
 import { useOs } from "@/lib/os";
 import AppSheet from "./AppSheet";
 import BugHuntCard from "./BugHuntCard";
-import { useCloseApp, useIdleEmitter, useLaunch } from "./hooks";
+import { useCloseApp, useGameActive, useIdleEmitter, useLaunch } from "./hooks";
 import HomeScreen from "./HomeScreen";
 import s from "./phone.module.css";
 
@@ -24,6 +24,8 @@ export default function PhoneShell() {
     const closeApp = useCloseApp();
     const launch = useLaunch();
     useIdleEmitter();
+    // During a round the game plays over the HOME screen: keep the app mounted (it owns the round) but out of sight.
+    const gameActive = useGameActive();
 
     const current = url.open[0] ?? null;
     const sheetApp: WindowAppId | null = current && current !== "bughunt" ? current : null;
@@ -41,7 +43,7 @@ export default function PhoneShell() {
 
     return (
         <MotionConfig reducedMotion="user">
-            <div className={s.root} data-phone-shell="" data-app-open={current ?? undefined}>
+            <div className={s.root} data-phone-shell="" data-app-open={current ?? undefined} data-game={gameActive ? "" : undefined}>
                 <Wallpaper shell="phone" />
                 <motion.div className={s.home} style={{ scale: homeScale }} inert={current !== null} data-phone-home="">
                     <HomeScreen />
@@ -49,7 +51,7 @@ export default function PhoneShell() {
                 <motion.div className={s.dim} style={{ opacity: dim }} aria-hidden="true" />
 
                 <AnimatePresence>
-                    {cardOpen && <BugHuntCard key="bughunt" item={url.item} onClose={closeBugHunt} openItem={openBugHuntItem} openApp={openApp} />}
+                    {cardOpen && <BugHuntCard key="bughunt" item={url.item} onClose={closeBugHunt} openItem={openBugHuntItem} openApp={openApp} hidden={gameActive} />}
                 </AnimatePresence>
 
                 <AnimatePresence mode="wait">
@@ -63,6 +65,7 @@ export default function PhoneShell() {
                             onClose={closeApp}
                             openItem={openItem}
                             openApp={openApp}
+                            hidden={gameActive}
                         />
                     )}
                 </AnimatePresence>

@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { phoneDockApps, phoneGridApps } from "@/apps/registry";
 import { posts } from "@/data/posts";
-import { os } from "@/lib/os";
+import { dayKey } from "@/features/bug-hunt/best";
+import { os, useOsStore } from "@/lib/os";
 import PhoneShell from "./PhoneShell";
 import { createFakeOs } from "./test-utils";
 import { latestPost } from "./Widgets";
@@ -93,7 +94,7 @@ describe("PhoneShell home screen", () => {
     });
 
     it("the Bug Hunt widget plays a round and shows the stored best", () => {
-        window.localStorage.setItem("hos_bughunt_best", "47");
+        window.localStorage.setItem("hos_bughunt_best", JSON.stringify({ day: dayKey(), score: 47 }));
         const fake = createFakeOs();
         render(<PhoneShell />);
         const widget = screen.getByRole("region", { name: "Bug Hunt" });
@@ -103,7 +104,8 @@ describe("PhoneShell home screen", () => {
         expect(fake.history.open).toHaveBeenCalledWith("bughunt", "play");
     });
 
-    it("shows an em dash before the first round", () => {
+    it("shows an em dash before the first round (and for a best from another day)", () => {
+        window.localStorage.setItem("hos_bughunt_best", JSON.stringify({ day: "2001-01-01", score: 99 }));
         render(<PhoneShell />);
         expect(screen.getByRole("region", { name: "Bug Hunt" }).textContent).toContain("—");
     });
@@ -218,5 +220,21 @@ describe("PhoneShell open app", () => {
 
         fireEvent.click(within(card).getByRole("button", { name: "Close Bug Hunt" }));
         expect(fake.history.close).toHaveBeenCalledWith("bughunt");
+    });
+
+    it("during a round the card steps aside (still mounted) and Escape is left to the game", () => {
+        const fake = createFakeOs({ open: ["bughunt"], item: "play" });
+        const { container } = render(<PhoneShell />);
+        act(() => useOsStore.getState().setMode("game"));
+        try {
+            const card = container.querySelector('[data-phone-surface="card"]');
+            expect(card).not.toBeNull();
+            expect(card?.getAttribute("aria-hidden")).toBe("true");
+            expect(screen.getByTestId("view-bughunt")).toBeTruthy();
+            fireEvent.keyDown(window, { key: "Escape" });
+            expect(fake.history.close).not.toHaveBeenCalled();
+        } finally {
+            act(() => useOsStore.getState().setMode("normal"));
+        }
     });
 });

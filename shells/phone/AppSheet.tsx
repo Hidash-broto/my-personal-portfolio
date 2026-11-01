@@ -89,6 +89,8 @@ export interface AppSheetProps {
     openItem: (app: WindowAppId, item: string | null) => void;
     /** Open another app from inside this one (e.g. a note linking to a build). */
     openApp: (app: WindowAppId, item?: string | null) => void;
+    /** Out of sight but still mounted (a Bug Hunt round is playing over the home screen). */
+    hidden?: boolean;
 }
 
 /**
@@ -96,7 +98,7 @@ export interface AppSheetProps {
  * counter-scaled content layer and a corner radius that goes to 0), collapses its large
  * title on scroll, and closes back into the icon from Back, Escape or the home bar.
  */
-export default function AppSheet({ app, item, coverage, homeScale, onClose, openItem, openApp }: AppSheetProps) {
+export default function AppSheet({ app, item, coverage, homeScale, onClose, openItem, openApp, hidden = false }: AppSheetProps) {
     const [isPresent, safeToRemove] = usePresence();
     const reduced = useReducedMotion() ?? false;
     const vp = useViewport();
@@ -174,13 +176,13 @@ export default function AppSheet({ app, item, coverage, homeScale, onClose, open
 
     // Escape behaves like Back.
     useEffect(() => {
-        if (!isPresent) return;
+        if (!isPresent || hidden) return;
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") back();
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-    }, [isPresent, back]);
+    }, [isPresent, hidden, back]);
 
     // Views own their scroller, so listen in the capture phase. The large title rides up with the
     // content (one transform on the body, rAF-throttled) and the inline title takes over, as on iOS.
@@ -244,7 +246,8 @@ export default function AppSheet({ app, item, coverage, homeScale, onClose, open
             aria-label={manifest.name}
             data-phone-surface="sheet"
             data-app={app}
-            style={{ x, y, scaleX, scaleY, originX: 0, originY: 0, borderRadius, opacity, pointerEvents: isPresent ? "auto" : "none" }}
+            style={{ x, y, scaleX, scaleY, originX: 0, originY: 0, borderRadius, opacity, pointerEvents: isPresent && !hidden ? "auto" : "none", visibility: hidden ? "hidden" : "visible" }}
+            aria-hidden={hidden || undefined}
         >
             <motion.div className={s.sheetInner} style={{ scaleY: innerScaleY }}>
                 <motion.div

@@ -17,11 +17,14 @@ export default function BugHuntCard({
     onClose,
     openItem,
     openApp,
+    hidden = false,
 }: {
     item: string | null;
     onClose: () => void;
     openItem: (item: string | null) => void;
     openApp: (app: WindowAppId, item?: string | null) => void;
+    /** A round is playing over the home screen: fade out, stay mounted (the view owns the round). */
+    hidden?: boolean;
 }) {
     const reduced = useReducedMotion() ?? false;
     const cardRef = useRef<HTMLElement>(null);
@@ -29,12 +32,17 @@ export default function BugHuntCard({
 
     useEffect(() => {
         cardRef.current?.focus({ preventScroll: true });
+    }, []);
+
+    // Escape closes the card, except mid-round, where Escape belongs to the game (it ends the round).
+    useEffect(() => {
+        if (hidden) return;
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") onClose();
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-    }, [onClose]);
+    }, [onClose, hidden]);
 
     return (
         <>
@@ -42,7 +50,7 @@ export default function BugHuntCard({
                 className={s.cardScrim}
                 aria-hidden="true"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={hidden ? { opacity: 0, transitionEnd: { visibility: "hidden" } } : { opacity: 1, visibility: "visible" }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
             />
@@ -57,7 +65,13 @@ export default function BugHuntCard({
                     data-phone-surface="card"
                     data-app="bughunt"
                     initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.86, y: 28 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    aria-hidden={hidden || undefined}
+                    style={{ pointerEvents: hidden ? "none" : "auto" }}
+                    animate={
+                        hidden
+                            ? { opacity: 0, scale: reduced ? 1 : 0.94, y: 0, transitionEnd: { visibility: "hidden" } }
+                            : { opacity: 1, scale: 1, y: 0, visibility: "visible" }
+                    }
                     exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 16 }}
                     transition={{ default: CARD_SPRING, opacity: { duration: 0.2 } }}
                 >

@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useSyncExternalStore, type RefObject } from "react";
 import type { WindowAppId } from "@/apps/registry";
-import { os, useOs } from "@/lib/os";
+import { readBest, subscribeBest } from "@/features/bug-hunt/best";
+import { os, useOs, useOsStore } from "@/lib/os";
 import { ICON_RADIUS_RATIO, type Viewport } from "./geometry";
 import { setLaunchOrigin } from "./launch";
 
@@ -60,33 +61,16 @@ export function useCloseApp() {
     );
 }
 
-const BEST_KEY = "hos_bughunt_best";
-/** Fired by anyone who updates the best score in this tab (storage events only fire cross-tab). */
-export const BEST_EVENT = "hos:bughunt-best";
+const readTodaysBest = () => readBest();
 
-function subscribeBest(cb: () => void) {
-    window.addEventListener("storage", cb);
-    window.addEventListener(BEST_EVENT, cb);
-    return () => {
-        window.removeEventListener("storage", cb);
-        window.removeEventListener(BEST_EVENT, cb);
-    };
+/** Today's best Bug Hunt score on this device, or null (owned by features/bug-hunt/best). */
+export function useBugHuntBest(): number | null {
+    return useSyncExternalStore(subscribeBest, readTodaysBest, () => null);
 }
 
-function readBest(): string | null {
-    try {
-        const raw = window.localStorage.getItem(BEST_KEY);
-        if (raw === null) return null;
-        const n = Number(raw);
-        return Number.isFinite(n) && n >= 0 ? String(Math.floor(n)) : null;
-    } catch {
-        return null;
-    }
-}
-
-/** Best Bug Hunt score on this device, or null. */
-export function useBugHuntBest(): string | null {
-    return useSyncExternalStore(subscribeBest, readBest, () => null);
+/** True while a Bug Hunt round is being played (the OS is locked to the home screen). */
+export function useGameActive(): boolean {
+    return useOsStore((s) => s.mode) === "game";
 }
 
 export const IDLE_MS = 30_000;
