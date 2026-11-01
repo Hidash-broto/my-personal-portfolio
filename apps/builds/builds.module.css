@@ -1,0 +1,100 @@
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tagline {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--hos-text-secondary);
+  text-wrap: pretty;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.hood {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--ui-fill-subtle);
+  box-shadow: inset 0 0 0 1px var(--hos-hairline);
+}
+
+.rowName {
+  flex: 1;
+  min-width: 0;
+}
+
+.rowArchived {
+  color: var(--hos-text-secondary);
+}
+
+[aria-current="true"] .rowArchived {
+  color: inherit;
+}
+
+/* phone */
+
+.phoneHero {
+  align-items: flex-start;
+  gap: 16px;
+  padding: 8px 4px 0;
+}
+
+.phoneHero .tagline {
+  font-size: 15px;
+}
+
+.phoneHero .actions {
+  margin-top: 10px;
+}
+
+.phoneHero .actions a {
+  min-height: 34px;
+  padding: 0 16px;
+  border-radius: 17px;
+  font-size: 15px;
+}
+
+.phoneTagline {
+  margin: 18px 4px 0;
+  font-size: 17px;
+  line-height: 1.47;
+  text-wrap: pretty;
+}
+
+.phoneStrip {
+  margin: 0 4px;
+}
+
+.phoneCard {
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--ui-fill);
+  box-shadow: var(--ui-card-shadow);
+}
+
+.phoneChips {
+  padding: 0 4px;
+}

@@ -1,0 +1,81 @@
+/*
+ * Placement contract (set by the shells on :root; fallbacks match the design canvas):
+ *   --hos-dock-top            desktop: y of the dock's top edge, from the viewport top   (fallback 100vh - 98px, i.e. 702px on an 800px screen)
+ *   --hos-dock-left           desktop: x of the dock's left edge                          (fallback 50vw - 240px)
+ *   --hos-dock-width          desktop: dock width                                         (fallback 480px)
+ *   --hos-menubar-height      desktop: menu bar height, for the game badge                (fallback 30px)
+ *   --hos-phone-dock-clearance phone: distance from the safe-area bottom to just above the dock (fallback 108px)
+ *   --hos-z-character         stacking on the desktop/home screen                         (fallback 900)
+ *   --hos-z-character-badge   stacking during a Bug Hunt round                            (fallback 9000)
+ * Only the figure button and the bubble take pointer events; the anchor never blocks the OS.
+ */
+
+.anchor {
+  position: fixed;
+  z-index: var(--hos-z-character, 900);
+  pointer-events: none;
+}
+
+/* Desktop: standing on the dock, about two thirds along it. */
+.anchor[data-layout="dock"] {
+  left: calc(var(--hos-dock-left, calc(50vw - 240px)) + var(--hos-dock-width, 480px) * 0.68);
+  top: var(--hos-dock-top, calc(100vh - 98px));
+  transform: translate(-50%, -100%);
+}
+
+/* Phone home screen: right edge, just above the dock. */
+.anchor[data-layout="home"] {
+  right: 12px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--hos-phone-dock-clearance, 108px));
+}
+
+/* Bug Hunt: small corner badge, top-right. */
+.anchor[data-layout="badge"] {
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  right: 12px;
+  z-index: var(--hos-z-character-badge, 9000);
+}
+
+.anchor[data-layout="badge"][data-shell="desktop"] {
+  top: calc(var(--hos-menubar-height, 30px) + 12px);
+}
+
+.walker {
+  position: relative;
+}
+
+.hit {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.38)) drop-shadow(0 0 0.6px rgba(156, 194, 255, 0.4));
+}
+
+.hit:focus-visible {
+  outline: 2px solid var(--hos-blue-light);
+  outline-offset: 4px;
+}
+
+.flip {
+  transform: scaleX(-1);
+}
+
+.badge {
+  display: grid;
+  place-items: end center;
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--hos-glass);
+  border: 1px solid var(--hos-hairline);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 var(--hos-highlight);
+  pointer-events: none;
+}
