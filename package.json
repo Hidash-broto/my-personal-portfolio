@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "wallpaper": "node scripts/wallpaper.mjs",
+    "images": "node scripts/images.mjs"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
@@ -30,6 +32,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.3",
     "jsdom": "^30.1.3",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.7"
