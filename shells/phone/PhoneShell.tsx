@@ -7,7 +7,7 @@ import Wallpaper from "@/features/wallpaper/Wallpaper";
 import { useOs } from "@/lib/os";
 import AppSheet from "./AppSheet";
 import BugHuntCard from "./BugHuntCard";
-import { useCloseApp, useIdleEmitter } from "./hooks";
+import { useCloseApp, useIdleEmitter, useLaunch } from "./hooks";
 import HomeScreen from "./HomeScreen";
 import s from "./phone.module.css";
 
@@ -22,6 +22,7 @@ const HOME_RECEDE = 0.06;
 export default function PhoneShell() {
     const { url, history } = useOs();
     const closeApp = useCloseApp();
+    const launch = useLaunch();
     useIdleEmitter();
 
     const current = url.open[0] ?? null;
@@ -35,6 +36,8 @@ export default function PhoneShell() {
     const openItem = useCallback((app: WindowAppId, item: string | null) => history.open(app, item), [history]);
     const closeBugHunt = useCallback(() => closeApp("bughunt"), [closeApp]);
     const openBugHuntItem = useCallback((item: string | null) => history.open("bughunt", item), [history]);
+    // Cross-app links from inside a view (no on-screen origin: zooms from the target icon).
+    const openApp = useCallback((app: WindowAppId, item?: string | null) => launch(app, item ?? null), [launch]);
 
     return (
         <MotionConfig reducedMotion="user">
@@ -46,7 +49,7 @@ export default function PhoneShell() {
                 <motion.div className={s.dim} style={{ opacity: dim }} aria-hidden="true" />
 
                 <AnimatePresence>
-                    {cardOpen && <BugHuntCard key="bughunt" item={url.item} onClose={closeBugHunt} openItem={openBugHuntItem} />}
+                    {cardOpen && <BugHuntCard key="bughunt" item={url.item} onClose={closeBugHunt} openItem={openBugHuntItem} openApp={openApp} />}
                 </AnimatePresence>
 
                 <AnimatePresence mode="wait">
@@ -59,6 +62,7 @@ export default function PhoneShell() {
                             homeScale={homeScale}
                             onClose={closeApp}
                             openItem={openItem}
+                            openApp={openApp}
                         />
                     )}
                 </AnimatePresence>

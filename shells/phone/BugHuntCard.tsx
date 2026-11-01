@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { Suspense, useEffect, useRef } from "react";
+import type { WindowAppId } from "@/apps/registry";
 import { APP_VIEWS } from "@/apps/views";
 import s from "./phone.module.css";
 
@@ -15,10 +16,12 @@ export default function BugHuntCard({
     item,
     onClose,
     openItem,
+    openApp,
 }: {
     item: string | null;
     onClose: () => void;
     openItem: (item: string | null) => void;
+    openApp: (app: WindowAppId, item?: string | null) => void;
 }) {
     const reduced = useReducedMotion() ?? false;
     const cardRef = useRef<HTMLElement>(null);
@@ -73,7 +76,7 @@ export default function BugHuntCard({
                     </header>
                     <div className={s.cardBody}>
                         <Suspense fallback={<div className={s.loading} aria-hidden="true" />}>
-                            <View shell="phone" item={item} openItem={openItem} close={onClose} />
+                            <View shell="phone" item={item} openItem={openItem} close={onClose} openApp={openApp} />
                         </Suspense>
                     </div>
                 </motion.section>

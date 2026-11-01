@@ -10,7 +10,7 @@ import {
     useTransform,
     type MotionValue,
 } from "framer-motion";
-import { Suspense, useEffect, useRef, useState, type UIEvent } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { AppIcon } from "@/apps/icons";
 import { getApp, type WindowAppId } from "@/apps/registry";
 import { APP_VIEWS } from "@/apps/views";
@@ -36,7 +36,9 @@ import s from "./phone.module.css";
 const OPEN_SPRING = { type: "spring", stiffness: 240, damping: 29, mass: 1, restDelta: 0.0005, restSpeed: 0.002 } as const;
 const CLOSE_SPRING = { type: "spring", stiffness: 290, damping: 32, mass: 1, restDelta: 0.0005, restSpeed: 0.002 } as const;
 const FADE = { duration: 0.22, ease: [0.2, 0, 0, 1] } as const;
-const COLLAPSE_AT = 30;
+/** Large title band height; the inline title takes over once the content passes it. */
+const LARGE_TITLE_H = 52;
+const COLLAPSE_AT = 40;
 
 interface Origin {
     box: Box;
@@ -85,6 +87,8 @@ export interface AppSheetProps {
     homeScale: MotionValue<number>;
     onClose: (app: WindowAppId) => void;
     openItem: (app: WindowAppId, item: string | null) => void;
+    /** Open another app from inside this one (e.g. a note linking to a build). */
+    openApp: (app: WindowAppId, item?: string | null) => void;
 }
 
 /**
@@ -92,7 +96,7 @@ export interface AppSheetProps {
  * counter-scaled content layer and a corner radius that goes to 0), collapses its large
  * title on scroll, and closes back into the icon from Back, Escape or the home bar.
  */
-export default function AppSheet({ app, item, coverage, homeScale, onClose, openItem }: AppSheetProps) {
+export default function AppSheet({ app, item, coverage, homeScale, onClose, openItem, openApp }: AppSheetProps) {
     const [isPresent, safeToRemove] = usePresence();
     const reduced = useReducedMotion() ?? false;
     const vp = useViewport();
@@ -101,7 +105,8 @@ export default function AppSheet({ app, item, coverage, homeScale, onClose, open
 
     const sheetRef = useRef<HTMLDivElement>(null);
     const backRef = useRef<HTMLButtonElement>(null);
-    const scrollerRef = useRef<HTMLDivElement>(null);
+    const bodyRef = useRef<HTMLDivElement>(null);
+    const navBgRef = useRef<HTMLDivElement>(null);
     const titleRef = useRef<HTMLHeadingElement>(null);
     const [collapsed, setCollapsed] = useState(false);
 
@@ -163,31 +168,72 @@ export default function AppSheet({ app, item, coverage, homeScale, onClose, open
         backRef.current?.focus({ preventScroll: true });
     }, []);
 
-    // Escape closes, like Back.
+    // Back: from an item to the list (like a navigation stack), otherwise out to the home screen.
+    const back = useCallback(() => (item ? openItem(app, null) : onClose(app)), [item, openItem, onClose, app]);
+    const close = useCallback(() => onClose(app), [onClose, app]);
+
+    // Escape behaves like Back.
     useEffect(() => {
         if (!isPresent) return;
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose(app);
+            if (e.key === "Escape") back();
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-    }, [isPresent, onClose, app]);
+    }, [isPresent, back]);
 
-    // A new item starts at the top, like a pushed screen.
+    // Views own their scroller, so listen in the capture phase. The large title rides up with the
+    // content (one transform on the body, rAF-throttled) and the inline title takes over, as on iOS.
+    const applyScroll = useRef<(top: number) => void>(() => {});
+    const lastScroller = useRef<HTMLElement | null>(null);
     useEffect(() => {
-        if (scrollerRef.current) scrollerRef.current.scrollTop = 0;
+        const body = bodyRef.current;
+        if (!body) return;
+        let raf = 0;
+        let last = 0;
+        const apply = (top: number) => {
+            const title = titleRef.current;
+            const lift = title ? clamp(top, 0, LARGE_TITLE_H) : 0;
+            body.style.transform = lift ? `translate3d(0, ${-lift}px, 0)` : "";
+            if (title) {
+                // Gone before it reaches the Back button; the bar material fades in as content slides under it.
+                title.style.opacity = String(1 - clamp(lift / 22, 0, 1));
+                // Rubber-band pull: the large title grows a touch.
+                title.style.transform = top < 0 ? `scale(${1 + Math.min(-top / 600, 0.1)})` : "";
+            }
+            const navBg = navBgRef.current;
+            if (navBg) navBg.style.opacity = String(title ? clamp((top - 8) / (LARGE_TITLE_H - 8), 0, 1) : clamp(top / 12, 0, 1));
+            setCollapsed(title ? top > COLLAPSE_AT : top > 2);
+        };
+        applyScroll.current = apply;
+        const onScroll = (e: Event) => {
+            if (!(e.target instanceof HTMLElement)) return;
+            lastScroller.current = e.target;
+            last = e.target.scrollTop;
+            if (!raf) {
+                raf = requestAnimationFrame(() => {
+                    raf = 0;
+                    apply(last);
+                });
+            }
+        };
+        body.addEventListener("scroll", onScroll, true);
+        return () => {
+            body.removeEventListener("scroll", onScroll, true);
+            cancelAnimationFrame(raf);
+        };
+    }, []);
+
+    // List <-> item swaps the header layout; re-sync with wherever the view's scroller now is.
+    useEffect(() => {
+        const raf = requestAnimationFrame(() => {
+            const el = lastScroller.current;
+            applyScroll.current(el && el.isConnected ? el.scrollTop : 0);
+        });
+        return () => cancelAnimationFrame(raf);
     }, [item]);
 
-    const onScroll = (e: UIEvent<HTMLDivElement>) => {
-        const top = e.currentTarget.scrollTop;
-        setCollapsed(top > COLLAPSE_AT);
-        const title = titleRef.current;
-        // Rubber-band pull: the large title grows a touch, as on iOS.
-        if (title) title.style.transform = top < 0 ? `scale(${1 + Math.min(-top / 600, 0.1)})` : "";
-    };
-
-    const close = () => onClose(app);
-    const titleId = `phone-sheet-title-${app}`;
+    const viewOpenItem = useCallback((next: string | null) => openItem(app, next), [openItem, app]);
 
     return (
         <motion.div
@@ -195,7 +241,7 @@ export default function AppSheet({ app, item, coverage, homeScale, onClose, open
             className={s.sheet}
             role="dialog"
             aria-modal="true"
-            aria-labelledby={titleId}
+            aria-label={manifest.name}
             data-phone-surface="sheet"
             data-app={app}
             style={{ x, y, scaleX, scaleY, originX: 0, originY: 0, borderRadius, opacity, pointerEvents: isPresent ? "auto" : "none" }}
@@ -209,30 +255,38 @@ export default function AppSheet({ app, item, coverage, homeScale, onClose, open
                     <AppIcon icon={manifest.icon} size={vp.w} />
                 </motion.div>
 
+                <div ref={bodyRef} className={s.body} data-large={!item}>
+                    {!item && (
+                        <h1 ref={titleRef} className={s.largeTitle}>
+                            {manifest.name}
+                        </h1>
+                    )}
+                    <div className={s.viewport}>
+                        {/* Own boundary: a lazy view must never suspend the whole shell. */}
+                        <Suspense fallback={<div className={s.loading} aria-hidden="true" />}>
+                            <View shell="phone" item={item} openItem={viewOpenItem} close={close} openApp={openApp} />
+                        </Suspense>
+                    </div>
+                </div>
+
                 <div className={s.navBar} data-collapsed={collapsed}>
-                    <div className={s.navBg} aria-hidden="true" />
-                    <button ref={backRef} type="button" className={s.back} onClick={close} aria-label="Back to home screen">
+                    <div ref={navBgRef} className={s.navBg} aria-hidden="true" />
+                    <button
+                        ref={backRef}
+                        type="button"
+                        className={s.back}
+                        onClick={back}
+                        aria-label={item ? `Back to ${manifest.name}` : "Back to home screen"}
+                    >
                         <svg width="13" height="21" viewBox="0 0 13 21" aria-hidden="true">
                             <path d="M11 2 2.5 10.5 11 19" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
-                        <span>Back</span>
+                        <span className={s.backLabel}>{item ? manifest.name : "Back"}</span>
                     </button>
                     <p className={s.inlineTitle} aria-hidden="true">
-                        {manifest.name}
+                        {item ? "" : manifest.name}
                     </p>
                     <span />
-                </div>
-
-                <div ref={scrollerRef} className={s.scroller} onScroll={onScroll}>
-                    <h1 ref={titleRef} id={titleId} className={s.largeTitle}>
-                        {manifest.name}
-                    </h1>
-                    <div className={s.content}>
-                        {/* Own boundary: a lazy view must never suspend the whole shell. */}
-                        <Suspense fallback={<div className={s.loading} aria-hidden="true" />}>
-                            <View shell="phone" item={item} openItem={(next) => openItem(app, next)} close={close} />
-                        </Suspense>
-                    </div>
                 </div>
 
                 <HomeBar dragY={dragY} viewportHeight={vp.h} onDismiss={close} label={`Close ${manifest.name} and go to the home screen`} />

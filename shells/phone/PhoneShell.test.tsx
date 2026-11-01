@@ -19,10 +19,15 @@ vi.mock("@/apps/views", async () => {
     const views = Object.fromEntries(
         WINDOW_APP_IDS.map((id) => [
             id,
-            ({ item }: { item: string | null }) => (
-                <div data-testid={`view-${id}`}>
-                    {id}:{item ?? "none"}
-                </div>
+            ({ item, openApp }: { item: string | null; openApp: (app: string, item?: string | null) => void }) => (
+                <>
+                    <div data-testid={`view-${id}`}>
+                        {id}:{item ?? "none"}
+                    </div>
+                    <button type="button" onClick={() => openApp("builds", "crm")}>
+                        open builds
+                    </button>
+                </>
             ),
         ]),
     );
@@ -145,20 +150,45 @@ describe("PhoneShell home screen", () => {
 });
 
 describe("PhoneShell open app", () => {
-    it("renders the open app as a full-screen sheet with a Back control", () => {
-        const fake = createFakeOs({ open: ["builds"], item: "crm" });
+    it("renders the open app as a full-screen sheet; Back closes it", () => {
+        const fake = createFakeOs({ open: ["builds"] });
         const closed = vi.fn();
         const off = os.on("app:close", closed);
         const { container } = render(<PhoneShell />);
 
         const sheet = screen.getByRole("dialog", { name: "Builds" });
         expect(sheet.getAttribute("data-phone-surface")).toBe("sheet");
-        expect(screen.getByTestId("view-builds").textContent).toBe("builds:crm");
+        expect(within(sheet).getByRole("heading", { level: 1, name: "Builds" })).toBeTruthy();
+        expect(screen.getByTestId("view-builds").textContent).toBe("builds:none");
         expect(container.querySelector("[data-phone-home]")?.hasAttribute("inert")).toBe(true);
 
         fireEvent.click(within(sheet).getByRole("button", { name: "Back to home screen" }));
         expect(fake.history.close).toHaveBeenCalledWith("builds");
         expect(closed).toHaveBeenCalledWith({ app: "builds" });
+        off();
+    });
+
+    it("with an item open, Back returns to the app's list instead of closing", () => {
+        const fake = createFakeOs({ open: ["builds"], item: "crm" });
+        render(<PhoneShell />);
+        const sheet = screen.getByRole("dialog", { name: "Builds" });
+        expect(screen.getByTestId("view-builds").textContent).toBe("builds:crm");
+        // Detail screens have no large title (the view shows its own headline).
+        expect(within(sheet).queryByRole("heading", { level: 1 })).toBeNull();
+
+        fireEvent.click(within(sheet).getByRole("button", { name: "Back to Builds" }));
+        expect(fake.history.open).toHaveBeenCalledWith("builds", null);
+        expect(fake.history.close).not.toHaveBeenCalled();
+    });
+
+    it("views can open another app (openApp) and that emits app:open", () => {
+        const fake = createFakeOs({ open: ["notes"], item: "adapt-or-vanish" });
+        const opened = vi.fn();
+        const off = os.on("app:open", opened);
+        render(<PhoneShell />);
+        fireEvent.click(screen.getByRole("button", { name: "open builds" }));
+        expect(fake.history.open).toHaveBeenCalledWith("builds", "crm");
+        expect(opened).toHaveBeenCalledWith({ app: "builds", item: "crm" });
         off();
     });
 

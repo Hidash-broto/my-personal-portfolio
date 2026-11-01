@@ -177,7 +177,10 @@
   backdrop-filter: var(--hos-blur);
 }
 
+/* Tinted solid glass. features/wallpaper/faux-glass.css (.hos-faux-glass) paints the pre-blurred
+   wallpaper under the tint when loaded; this gradient is the fallback. */
 .faux {
+  --hos-faux-radius: var(--hos-radius-widget, 22px);
   background: var(--phone-faux);
 }
 
@@ -572,32 +575,50 @@ button.widget:active {
   line-height: 0;
 }
 
-.scroller {
+/* Everything under the nav bar: the large title band plus the view (which scrolls itself).
+ * With a large title the body hangs 52px below the screen; scrolling lifts it by up to 52px
+ * (transform only), so the title rides up with the content exactly like iOS. */
+.body {
   position: absolute;
-  inset: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  padding:
-    calc(var(--phone-safe-top) + 44px)
-    var(--phone-safe-right)
-    calc(var(--phone-safe-bottom) + 64px)
-    var(--phone-safe-left);
+  left: 0;
+  right: 0;
+  top: calc(var(--phone-safe-top) + 44px);
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--phone-safe-right) 0 var(--phone-safe-left);
+}
+
+.body[data-large="true"] {
+  bottom: -52px;
 }
 
 .largeTitle {
-  margin: 2px 0 6px;
-  padding: 0 20px;
+  flex: none;
+  box-sizing: border-box;
+  height: 52px;
+  margin: 0;
+  padding: 2px 20px 0;
   font-size: 34px;
   line-height: 41px;
   font-weight: 700;
   letter-spacing: 0.011em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transform-origin: 0 50%;
 }
 
-.content {
-  min-height: 40vh;
+.viewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Views are height: 100% of this box and own their scrolling (overscroll contained). */
+.viewport > * {
+  position: absolute;
+  inset: 0;
 }
 
 .navBar {
@@ -621,13 +642,9 @@ button.widget:active {
   -webkit-backdrop-filter: var(--hos-blur);
   backdrop-filter: var(--hos-blur);
   border-bottom: 0.5px solid var(--hos-hairline);
+  /* Driven per frame from the view's scroll position (scroll-edge appearance). */
   opacity: 0;
-  transition: opacity 180ms ease;
   pointer-events: none;
-}
-
-.navBar[data-collapsed="true"] .navBg {
-  opacity: 1;
 }
 
 .back {
@@ -647,6 +664,13 @@ button.widget:active {
   font-size: 17px !important;
   line-height: 22px;
   letter-spacing: -0.02em;
+}
+
+.backLabel {
+  max-width: 38vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .back:active {
