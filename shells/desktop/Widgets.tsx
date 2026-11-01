@@ -7,6 +7,7 @@ import { syncFauxGlass } from "@/features/wallpaper/faux-glass";
 import { useSpawnSurface } from "@/lib/os";
 import { readBest, subscribeBest } from "@/features/bug-hunt/best";
 import type { DesktopActions } from "./use-desktop-actions";
+import HeadAvatar from "@/components/brand/HeadAvatar";
 
 const LATEST = [...posts].sort((a, b) => b.date.localeCompare(a.date))[0];
 
@@ -32,15 +33,6 @@ function GlassLayer() {
     return <span ref={ref} className="hos-faux-glass hos-glass-layer" aria-hidden="true" />;
 }
 
-function initials(name: string) {
-    return name
-        .split(/\s+/)
-        .map((part) => part[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase();
-}
-
 /** Top-right widget column. Faux glass (no live blur), registered as Bug Hunt spawn surfaces. */
 export function Widgets({ actions }: { actions: DesktopActions }) {
     return (
@@ -59,7 +51,7 @@ function ProfileWidget({ actions }: { actions: DesktopActions }) {
         <button ref={ref} type="button" className="hos-widget hos-widget-profile" aria-label={`About ${PROFILE.name}`} onClick={() => actions.launch("about")}>
             <GlassLayer />
             <span className="hos-avatar" aria-hidden="true">
-                {initials(PROFILE.name)}
+                <HeadAvatar />
             </span>
             <span className="hos-widget-stack">
                 <span className="hos-widget-name">{PROFILE.name}</span>

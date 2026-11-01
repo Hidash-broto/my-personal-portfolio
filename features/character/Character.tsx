@@ -11,7 +11,7 @@ import { loadRiveCharacter, type RiveCharacter } from "./rive";
 import s from "./character.module.css";
 
 /** Figure heights per layout, in CSS px. */
-const HEIGHT: Record<Exclude<CharLayout, "none">, number> = { dock: 96, home: 64, badge: 48 };
+const HEIGHT: Record<Exclude<CharLayout, "none">, number> = { dock: 150, home: 84, badge: 48 };
 /** How far he walks when the Builds dock icon can't be found. */
 const FALLBACK_WALK_PX = -160;
 /** The Builds icon in the desktop dock, if the shell marks it. */

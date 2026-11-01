@@ -18,13 +18,31 @@ export interface AppViewProps {
     openApp: (app: WindowAppId, item?: string | null) => void;
 }
 
-/** Lazy view per window app. Keys are checked against the registry by the compiler. */
-export const APP_VIEWS: Record<WindowAppId, ComponentType<AppViewProps>> = {
-    journey: dynamic(() => import("./journey/View")),
-    builds: dynamic(() => import("./builds/View")),
-    about: dynamic(() => import("./about/View")),
-    beliefs: dynamic(() => import("./beliefs/View")),
-    notes: dynamic(() => import("./notes/View")),
-    sayhi: dynamic(() => import("./sayhi/View")),
-    bughunt: dynamic(() => import("@/features/bug-hunt/BugHuntApp")),
+type Loader = () => Promise<{ default: ComponentType<AppViewProps> }>;
+
+const LOADERS: Record<WindowAppId, Loader> = {
+    journey: () => import("./journey/View"),
+    builds: () => import("./builds/View"),
+    about: () => import("./about/View"),
+    beliefs: () => import("./beliefs/View"),
+    notes: () => import("./notes/View"),
+    sayhi: () => import("./sayhi/View"),
+    bughunt: () => import("@/features/bug-hunt/BugHuntApp"),
 };
+
+/**
+ * Lazy view per window app. Keys are checked against the registry by the compiler.
+ * Render each inside its own <Suspense>: without one, a first open suspends the whole shell
+ * and React hides it (the "page goes black" bug).
+ */
+export const APP_VIEWS = Object.fromEntries(
+    Object.entries(LOADERS).map(([id, load]) => [id, dynamic(load)]),
+) as Record<WindowAppId, ComponentType<AppViewProps>>;
+
+let preloaded = false;
+/** Fetch every app view's code in the background, so the first open is instant. Idempotent. */
+export function preloadAppViews() {
+    if (preloaded) return;
+    preloaded = true;
+    for (const load of Object.values(LOADERS)) load().catch(() => {});
+}

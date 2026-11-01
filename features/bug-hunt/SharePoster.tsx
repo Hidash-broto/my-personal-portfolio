@@ -3,6 +3,7 @@ import Beetle from "./Beetle";
 import ShareBeacon from "./ShareBeacon";
 import { challengeHref, type ShareCard } from "./server";
 import styles from "./share-page.module.css";
+import HeadAvatar from "@/components/brand/HeadAvatar";
 
 /** The share page body. Valid token: the verified score and caught lessons. Invalid: the generic card. */
 export default function SharePoster({ card }: { card: ShareCard }) {
@@ -12,7 +13,9 @@ export default function SharePoster({ card }: { card: ShareCard }) {
             <ShareBeacon valid={card.valid} score={card.valid ? card.score : null} />
             <article className={styles.poster}>
                 <div className={styles.brand}>
-                    <span className={styles.mono} aria-hidden="true">H</span>
+                    <span className={styles.mono} aria-hidden="true">
+                        <HeadAvatar />
+                    </span>
                     Hidash OS · Bug Hunt
                 </div>
 

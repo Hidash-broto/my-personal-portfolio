@@ -23,7 +23,7 @@ let preloaded = false;
 function preloadAll() {
     if (preloaded || typeof window === "undefined") return;
     preloaded = true;
-    for (const art of Object.keys(POSE_SIZES) as Art[]) {
+    for (const art of ["idle", "wave", "point", "type", "celebrate"] as Art[]) {
         const img = new Image();
         img.decoding = "async";
         img.src = src(art, "webp");
@@ -41,7 +41,7 @@ export interface PoseArtProps {
 
 export default function PoseArt({ pose, height, walking = false, bust = false, reduced = false, onError }: PoseArtProps) {
     useEffect(preloadAll, []);
-    const art: Art = bust ? "bust" : ART[pose];
+    const art: Art = bust ? "head" : ART[pose];
     const width = bust ? height : Math.round(height * FULL_ASPECT);
     const size = POSE_SIZES[art];
     const imgW = Math.round((height * size.w) / size.h);
