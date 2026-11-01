@@ -62,7 +62,7 @@ describe("Bubble", () => {
         fake.shell = shell;
         const onDismiss = vi.fn();
         render(<Bubble onDismiss={onDismiss} />);
-        fireEvent.click(screen.getByRole("button", { name: "Play Bug Hunt" }));
+        fireEvent.click(screen.getByRole("button", { name: "Play Bug Hunt with Hidash" }));
         expect(fake.history.open).toHaveBeenCalledWith("bughunt", "play");
         expect(onDismiss).toHaveBeenCalled();
     });

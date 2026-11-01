@@ -78,7 +78,7 @@ export default function Bubble({ onDismiss, walk }: BubbleProps) {
                 <button type="button" className={`${s.btn} ${s.primary}`} onClick={showMe}>
                     Show me
                 </button>
-                <button type="button" className={`${s.btn} ${s.secondary}`} onClick={play}>
+                <button type="button" className={`${s.btn} ${s.secondary}`} onClick={play} aria-label="Play Bug Hunt with Hidash">
                     <span className={s.dot} aria-hidden="true" />
                     Play Bug Hunt
                 </button>
