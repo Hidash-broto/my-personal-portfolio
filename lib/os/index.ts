@@ -9,3 +9,4 @@ export { useOsStore, type WindowGeometry, type OsMode } from "./store";
 export { registerSpawnSurface, getSpawnRects, clearSpawnSurfaces, type SpawnKind, type SpawnRect } from "./spawn";
 export { useSpawnSurface } from "./use-spawn-surface";
 export { BOOT_SCRIPT, bootScript, markSeen, readShell } from "./boot-script";
+export { OsProvider, useOs } from "./context";
