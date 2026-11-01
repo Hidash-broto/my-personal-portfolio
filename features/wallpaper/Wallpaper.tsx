@@ -35,6 +35,9 @@ export default function Wallpaper({ shell, onReady }: { shell: WallpaperShell; o
             const done = () => {
                 setReady(true);
                 onReady?.();
+                // Boot listens for this ("wallpaper decoded" ready signal).
+                document.documentElement.dataset.wallpaperReady = "1";
+                window.dispatchEvent(new Event("hos:wallpaper-ready"));
             };
             // decode() resolves once the pixels are ready to paint; fall back to load for old engines.
             if (typeof img.decode === "function") img.decode().then(done, done);

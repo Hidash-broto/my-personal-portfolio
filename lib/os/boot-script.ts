@@ -20,6 +20,21 @@ export function bootScript() {
         }
         root.dataset.firstVisit = seen ? "0" : "1";
         root.dataset.boot = !seen && !deepLink && window.location.pathname === "/" ? "on" : "off";
+
+        // Start the wallpaper download now, before any JS bundle runs. Only the matching theme
+        // and a supported format are fetched (media + type gate the preload).
+        if (window.location.pathname === "/") {
+            for (const theme of ["dark", "light"]) {
+                const link = document.createElement("link");
+                link.setAttribute("rel", "preload");
+                link.setAttribute("as", "image");
+                link.setAttribute("type", "image/avif");
+                link.setAttribute("href", `/wallpaper/${theme}-${root.dataset.shell}.avif`);
+                link.setAttribute("media", `(prefers-color-scheme: ${theme})`);
+                link.setAttribute("fetchpriority", "high");
+                document.head.appendChild(link);
+            }
+        }
     } catch {
         document.documentElement.dataset.shell = "desktop";
         document.documentElement.dataset.boot = "off";
