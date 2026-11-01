@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, FolderGit2, User, Rocket, Mail, FileText, Images, MessageCircle } from "lucide-react";
-import PDFViewer from "./PDFViewer";
+import { useRouter } from "next/navigation";
+import { Briefcase, FolderGit2, User, Compass, Mail, NotebookPen, Images, Linkedin } from "lucide-react";
 import MobileCodeViewer from "./MobileCodeViewer";
+import { LINKEDIN_URL } from "@/data/portfolioContent";
 import MobilePhotosViewer from "./MobilePhotosViewer";
 
 interface AppIconProps {
@@ -86,8 +87,8 @@ function DockIcon({ icon: Icon, color, onClick }: { icon: typeof Briefcase; colo
 }
 
 export default function MobileView() {
+    const router = useRouter();
     const [activeApp, setActiveApp] = useState<string | null>(null);
-    const [showPDF, setShowPDF] = useState(false);
     const [showPhotos, setShowPhotos] = useState(false);
     const [viewportHeight, setViewportHeight] = useState("100vh");
 
@@ -106,30 +107,30 @@ export default function MobileView() {
     }, []);
 
     const apps = [
-        { id: "experience", label: "Experience", icon: Briefcase, color: "#3b82f6" },
-        { id: "projects", label: "Projects", icon: FolderGit2, color: "#8b5cf6" },
-        { id: "about", label: "About Me", icon: User, color: "#06b6d4" },
-        { id: "whyHireMe", label: "Why Hire", icon: Rocket, color: "#f59e0b" },
-        { id: "contact", label: "Contact", icon: Mail, color: "#10b981" },
-        { id: "resume", label: "Resume", icon: FileText, color: "#ef4444" },
-        { id: "photos", label: "Me", icon: Images, color: "#ec4899" },
-        { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, color: "#25D366" },
+        { id: "experience", label: "Journey", icon: Briefcase, color: "#3b82f6" },
+        { id: "projects", label: "Builds", icon: FolderGit2, color: "#8b5cf6" },
+        { id: "about", label: "About", icon: User, color: "#06b6d4" },
+        { id: "beliefs", label: "Beliefs", icon: Compass, color: "#f59e0b" },
+        { id: "notes", label: "Notes", icon: NotebookPen, color: "#ec4899" },
+        { id: "contact", label: "Say Hi", icon: Mail, color: "#10b981" },
+        { id: "photos", label: "Me", icon: Images, color: "#a855f7" },
+        { id: "linkedin", label: "LinkedIn", icon: Linkedin, color: "#0a66c2" },
     ];
 
     const dockApps = [
         { id: "experience", icon: Briefcase, color: "#3b82f6" },
         { id: "projects", icon: FolderGit2, color: "#8b5cf6" },
-        { id: "whatsapp", icon: MessageCircle, color: "#25D366" },
-        { id: "resume", icon: FileText, color: "#ef4444" },
+        { id: "notes", icon: NotebookPen, color: "#ec4899" },
+        { id: "linkedin", icon: Linkedin, color: "#0a66c2" },
     ];
 
     const handleAppClick = (appId: string) => {
-        if (appId === "resume") {
-            setShowPDF(true);
+        if (appId === "notes") {
+            router.push("/blog");
         } else if (appId === "photos") {
             setShowPhotos(true);
-        } else if (appId === "whatsapp") {
-            window.open("https://wa.me/917736574157", "_blank");
+        } else if (appId === "linkedin") {
+            window.open(LINKEDIN_URL, "_blank", "noopener,noreferrer");
         } else {
             setActiveApp(appId);
         }
@@ -208,14 +209,6 @@ export default function MobileView() {
             >
                 <div className="w-32 h-1 rounded-full bg-white/40" />
             </motion.div>
-
-            {/* PDF Viewer */}
-            <PDFViewer
-                isOpen={showPDF}
-                onClose={() => setShowPDF(false)}
-                pdfUrl="/Muhammed Hidash Resume.pdf"
-                title="Muhammed Hidash Resume"
-            />
 
             {/* Photos Viewer */}
             <MobilePhotosViewer

@@ -1,80 +1,47 @@
-"use client";
+import Link from "next/link";
+import HomeClient from "@/components/HomeClient";
+import { posts } from "@/data/posts";
+import { LINKEDIN_URL, GITHUB_URL, INSTAGRAM_URL, SITE_URL } from "@/data/portfolioContent";
 
-import { useEffect, useState } from "react";
-import { WindowManagerProvider } from "@/components/WindowManager";
-import Desktop from "@/components/Desktop";
-import TopMenuBar from "@/components/TopMenuBar";
-import Dock from "@/components/Dock";
-import BioWidget from "@/components/BioWidget";
-import VSCodeWindow from "@/components/VSCodeWindow";
-import MobileView from "@/components/MobileView";
-import LoadingScreen from "@/components/LoadingScreen";
+const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Muhammed Hidash",
+    url: SITE_URL,
+    image: `${SITE_URL}/my-photo.png`,
+    jobTitle: "Chief Technology Officer",
+    worksFor: { "@type": "Organization", name: "Dentobees" },
+    description: "Startup builder. Tech by craft, business by curiosity. Engineer at heart, product builder by choice.",
+    knowsAbout: ["Software engineering", "Systems architecture", "SaaS", "Product engineering", "Applied AI", "Startups"],
+    sameAs: [LINKEDIN_URL, GITHUB_URL, INSTAGRAM_URL],
+};
 
 export default function Home() {
-  const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  // Avoid hydration mismatch
-  if (!mounted) {
     return (
-      <div className="h-screen w-screen bg-black flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-      </div>
+        <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
+
+            {/* Server-rendered summary: the desktop UI below is client-only, so this is what search engines and screen readers read. */}
+            <section className="sr-only">
+                <h1>Muhammed Hidash — Startup builder. Tech by craft, business by curiosity.</h1>
+                <p>Engineer at heart, product builder by choice. CTO at Dentobees, an early-stage SaaS startup.</p>
+                <h2>Builds</h2>
+                <ul>
+                    <li><a href="https://salestrack.in">WhatsApp AI Sales CRM</a></li>
+                    <li>Multi-product SaaS suite with single sign-on</li>
+                    <li>Software Factory</li>
+                    <li><a href="https://github.com/Hidash-broto/agent_view">agentview (open source)</a></li>
+                </ul>
+                <h2>Notes</h2>
+                <ul>
+                    {posts.map((post) => (
+                        <li key={post.slug}><Link href={`/blog/${post.slug}`}>{post.title}</Link></li>
+                    ))}
+                </ul>
+                <p><a href={LINKEDIN_URL}>Say hi on LinkedIn</a></p>
+            </section>
+
+            <HomeClient />
+        </>
     );
-  }
-
-  if (isMobile) {
-    return (
-      <>
-        <LoadingScreen />
-        <MobileView />
-      </>
-    );
-  }
-
-  return (
-    <>
-      <LoadingScreen />
-      <WindowManagerProvider>
-        <Desktop>
-          <TopMenuBar />
-          <BioWidget />
-          <Dock />
-
-          {/* VS Code Windows */}
-          <VSCodeWindow
-            windowId="experience"
-            defaultPosition={{ x: 80, y: 60 }}
-          />
-          <VSCodeWindow
-            windowId="projects"
-            defaultPosition={{ x: 140, y: 100 }}
-          />
-          <VSCodeWindow
-            windowId="about"
-            defaultPosition={{ x: 200, y: 80 }}
-          />
-          <VSCodeWindow
-            windowId="whyHireMe"
-            defaultPosition={{ x: 120, y: 120 }}
-          />
-          <VSCodeWindow
-            windowId="contact"
-            defaultPosition={{ x: 160, y: 90 }}
-          />
-        </Desktop>
-      </WindowManagerProvider>
-    </>
-  );
 }

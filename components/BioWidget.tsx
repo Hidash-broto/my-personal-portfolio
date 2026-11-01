@@ -19,17 +19,22 @@ export default function BioWidget() {
                         <Code2 className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-semibold text-white">Muhammed Hidash K</h2>
+                        <h2 className="text-lg font-semibold text-white">Muhammed Hidash</h2>
                         <div className="flex items-center gap-1">
                             <Sparkles className="w-3 h-3 text-yellow-400" />
-                            <span className="text-xs text-white/60">Available for hire</span>
+                            <span className="text-xs text-white/60">CTO @ Dentobees</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Tagline */}
+                {/* Headline */}
+                <p className="text-base font-semibold text-white leading-snug">
+                    Startup builder. Tech by craft, business by curiosity.
+                </p>
+
+                {/* Tags */}
                 <div className="flex flex-wrap gap-2">
-                    {["Full-Stack Developer", "Problem Solver", "System Design", "Boyond Coder", "Freelancer"].map((tag) => (
+                    {["Startup Builder", "Systems Architecture", "Product Engineering", "Applied AI", "Zero-to-One"].map((tag) => (
                         <span
                             key={tag}
                             className="px-2.5 py-1 text-xs font-medium rounded-full 
@@ -42,7 +47,7 @@ export default function BioWidget() {
 
                 {/* Bio */}
                 <p className="text-sm text-white/70 leading-relaxed">
-                    I am a Value-Focused Full-Stack Developer who thrives at the intersection of high-speed AI orchestration and production-grade engineering. In an era where "vibe coding" is common, I champion Validated Coding—leveraging frontier models like Claude and tools like Cursor to accelerate development while maintaining the architectural rigor required for scale.
+                    Engineer at heart, product builder by choice. I lead engineering at Dentobees, where we take products from zero to paying customers, in India and beyond. I care about fundamentals, taste and a clear vision, and I stay close to the customers we build for.
                 </p>
             </div>
         </motion.div>
